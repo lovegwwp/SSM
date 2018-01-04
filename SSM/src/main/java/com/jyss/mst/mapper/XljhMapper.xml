@@ -1,0 +1,251 @@
+
+<!--  <?xml version="1.0" encoding="UTF-8" ?>-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jyss.mst.mapper.XljhMapper" > 
+
+    <resultMap type="com.jyss.mst.entity.Xljh" id="jhResultMap">   
+        <id property="id" column="id"  />
+        <result property="dID" column="d_id"  />
+        <result property="pID" column="p_id"  />
+        <result property="week" column="week"  />  
+        <result property="day" column="day"  />
+        <result property="time" column="time"  />
+        <result property="vedioTime" column="vedio_time"  />
+        <result property="vedioIds" column="vedio_ids"  />
+        <result property="vedioAccount" column="vedio_account"  />  
+        <result property="type" column="type"  />
+        <result property="xlmb" column="xlmb"  />
+        <result property="bfTime" column="bf_time"  />
+        <result property="createdAt" column="created_at"  />
+        <result property="lastModifyTime" column="last_modify_time"  />
+        <result property="cjsj" column="cjsj"  />
+        <result property="xgsj" column="xgsj"  />
+
+    </resultMap> 
+    
+     <resultMap type="com.jyss.mst.entity.PatXlFa" id="faResultMap">   
+        <id property="id" column="id"  />
+        <result property="dID" column="d_id"  />
+        <result property="pID" column="p_id"  />
+        <result property="week" column="week"  />  
+        <result property="day" column="day"  />
+        <result property="time" column="time"  />
+        <result property="vedioTime" column="vedio_time"  />
+        <result property="vedioIds" column="vedio_ids"  />
+        <result property="vedioAccount" column="vedio_account"  />  
+        <result property="type" column="type"  />
+        <result property="xlmb" column="xlmb"  />
+         <result property="bfTime" column="bf_time"  />
+        <result property="createdAt" column="created_at"  />
+        <result property="lastModifyTime" column="last_modify_time"  />
+        <result property="cjsj" column="cjsj"  />
+        <result property="xgsj" column="xgsj"  />                
+        <result property="spid" column="spid"  />
+        <result property="xmId" column="xm_id"  />   
+        <result property="titles" column="titles"  />    
+        <result property="watchTime" column="watch_time"  />
+        <result property="spTime" column="sp_time"  />
+        <result property="scores" column="scores"  />
+        <result property="comments" column="comments"  />               
+        <result property="lastPcTime" column="last_pc_time"  />     
+        <result property="pcsj" column="pcsj"  />
+        <result property="xlPercent" column="xl_percent"  />
+
+    </resultMap> 
+    
+    <!-- 病人端    提取个人训练计划-->
+    <select  id="getPatJh" resultMap="faResultMap"> 
+        select t.* from (
+			select j.*,s.id as spid,s.xm_id,s.titles,ifnull(s.watch_time,0) as watch_time ,s.vedio_time as sp_time,s.scores,s.comments,s.last_pc_time,if(length(trim(ifnull(s.xl_percent,0)))=0,0,ifnull(s.xl_percent,0)) as xl_percent  from  p_xljh j
+			left join p_xlsp s
+			on j.d_id = s.d_id
+			and  j.p_id = s.p_id
+			and  j.week = s.week
+			and  j.day = s.day
+			and  j.time = s.time
+			and  j.type = s.type) t
+         <where> 
+            t.xlmb=1
+			  <if test="pID != null and pID !=''"> and p_id = #{pID} </if> 	
+			  <if test="dID != null and dID !=''"> and d_id = #{dID} </if> 			  
+		 </where> 
+		 group  by  t.week,t.day,t.time,t.d_id,t.p_id,t.type	
+		 order by t.week,t.day,t.time	 	
+    </select>
+    
+     <!-- 病人端   训练医生ID-->
+    <select  id="getPatJhDID" resultMap="faResultMap"> 
+       select distinct(d_id) as d_id ,p_id from p_xljh  
+         <where> 
+            xlmb=1
+			  <if test="pID != null and pID !=''"> and p_id = #{pID} </if> 			  
+		 </where> 			
+    </select>
+    
+
+     <!-- 医生端 提取模板训练计划-->
+    <select  id="getMbJh" resultMap="jhResultMap"> 
+        select * from p_xljh 
+         <where> 
+               xlmb =2
+			  <if test="type != null and type !=''"> and type = #{type} </if> 	
+			  <if test="dID != null and dID !=''"> and d_id = #{dID} </if> 			  
+		 </where> 		
+    </select>
+    
+     <!-- 医生端 显示生成的训练计划-->
+    <select  id="getScJh" resultMap="jhResultMap"> 
+        select * from p_xljh 
+         <where> 
+               xlmb =0
+			  <if test="type != null and type !=''"> and type = #{type} </if>
+			  <if test="pID != null and pID !=''"> and p_id = #{pID} </if> 	
+			  <if test="dID != null and dID !=''"> and d_id = #{dID} </if> 			  
+		 </where> 		
+    </select>
+    
+     <!-- 医生端  编辑训练计划-->
+    <select  id="getJhForBj" resultMap="jhResultMap"> 
+        select t.* from (
+			select j.*,s.id as spid,s.xm_id,s.titles,s.watch_time,s.vedio_time as sp_time,s.scores,s.comments,s.last_pc_time,s.xl_percent from  p_xljh j
+			left join p_xlsp s
+			on j.d_id = s.d_id
+			and  j.p_id = s.p_id
+			and  j.week = s.week
+			and  j.day = s.day
+			and  j.time = s.time
+			and  j.type = s.type) t
+         <where> 
+              xlmb =1
+			  <if test="type != null and type !=''"> and type = #{type} </if>
+			  <if test="pID != null and pID !=''"> and p_id = #{pID} </if> 	
+			  <if test="dID != null and dID !=''"> and d_id = #{dID} </if> 			  
+		 </where> 		
+    </select>
+    
+      
+    <!-- 医生端   生成训练列表-->
+    <insert id="scJh" parameterType="com.jyss.mst.entity.Xljh" 
+        useGeneratedKeys="true" keyProperty="id"> 
+        insert into p_xljh 
+        values(null,#{dID},#{pID},#{week},#{day},#{time},#{vedioTime},#{vedioAccount},#{vedioIds},#{type},#{xlmb},null,null,#{bfTime})              
+    </insert>
+    
+      <!-- 医生端   复制模板计划-->
+    <insert id="copyMbJh" parameterType="com.jyss.mst.entity.Xljh" 
+        useGeneratedKeys="true" keyProperty="id"> 
+        insert into p_xljh(d_id,p_id,week,day,time,vedio_time,vedio_account,type,xlmb,bf_time)
+      	    select d_id, #{pID} as p_id, week,day,time,vedio_time,vedio_account,type, 0 as xlmb ,bf_time from p_xljh 
+       		   where d_id = #{dID} and xlmb = 2 and type = #{type}    
+    </insert>
+    
+     <!-- 医生端   保存模板 应先删除旧模板 -->
+    <insert id="saveMb" parameterType="com.jyss.mst.entity.Xljh" 
+        useGeneratedKeys="true" keyProperty="id"> 
+         insert into p_xljh(d_id,week,day,time,vedio_time,vedio_account,type,xlmb,bf_time)
+      	    select d_id, week,day,time,vedio_time,vedio_account,type, 2 as xlmb ,bf_time  from p_xljh 
+       		   where d_id = #{dID} and p_id=#{pID} and xlmb = 0 and type = #{type} 
+    </insert>
+    
+    <!-- 医生端    删除方案全部计划-->  
+     <delete id="delFaJh" >
+        delete from p_xljh  
+	    <where> 
+              xlmb not in(2)
+			  <if test="dID != null and dID !=''"> and d_id = #{dID} </if> 
+			  <if test="pID != null and pID !=''"> and p_id = #{pID} </if> 	
+			  <if test="type != null and type !=''"> and type = #{type} </if> 				  
+		 </where> 	
+    </delete>
+    
+     <!-- 医生端   删除多余模板计划-->
+    <delete id="delMoreMbJh" parameterType="com.jyss.mst.entity.Xljh">
+        delete from p_xljh  
+	       where  xlmb = 2 and type=#{type} and d_id = #{dID} 
+    </delete>
+    
+     <!-- 医生端   删除多余未激活计划 不管训练类型-->
+    <delete id="delMoreJh" parameterType="com.jyss.mst.entity.Xljh">
+        delete from p_xljh  
+	       where  xlmb = 2 and p_id=#{pID} and d_id = #{dID} 
+    </delete>
+    
+   <!-- 医生端  替换同类型计划  -->
+    <delete id="replaceJhType" parameterType="com.jyss.mst.entity.Xljh">
+        delete from p_xljh  
+	       where  p_id=#{pID} and d_id = #{dID} and type = #{type}
+    </delete>
+    
+    
+   <!-- 医生端  激活计划-->
+    <update id="activeJh" parameterType="com.jyss.mst.entity.Xljh" >
+        update p_xljh
+           set xlmb = #{xlmb}
+        where xlmb =0 and p_id=#{pID} and d_id = #{dID} and type = #{type}
+    </update>
+   
+    <!-- 医生端  生成视频的时候 回置计划视频数量-->
+    <update id="setJhAccount" parameterType="com.jyss.mst.entity.Xljh" >
+        update p_xljh
+           set vedio_account = #{vedioAccount}
+        where xlmb =0 and type = #{type} and p_id=#{pID} and d_id = #{dID} and week = #{week} and day = #{day} and time = #{time}
+    </update>
+    
+    <!--医生 判断医生是否有业务存在 -->
+    <select id="isHasYw" resultType="int"  parameterType="int">         
+		select count(*) from p_xljh 
+         <where> 
+              xlmb = 1
+			  <if test="dId != null and dId !=''"> and d_id = #{dId} </if> 			  
+		 </where> 
+    </select>
+    
+     <!--json 转换-->
+      <!-- 医生端    获取当前病人训练类型-->
+     <select  id="getTypeForJson" resultMap="jhResultMap"> 
+        select distinct(type) as type  from p_xljh  
+         <where> 
+              xlmb = #{xlmb} 
+			  <if test="pID != null and pID !=''"> and p_id = #{pID} </if> 	
+			  <if test="dID != null and dID !=''"> and d_id = #{dID} </if> 			  
+		 </where> 		
+    </select>
+    
+      <!-- 医生端    获取当前总计划-->
+     <select  id="getTotalJhForJson" resultType="com.jyss.mst.entity.JsonEntity.ExeMakeIf"> 
+          select max(week) as week ,max(day) as weekday ,max(time) as daytime ,vedio_time as timesmins, bf_time as bfTime
+             from p_xljh 
+         <where> 
+              xlmb = #{xlmb} 
+              <if test="type != null and type !=''"> and type = #{type} </if>
+			  <if test="pID != null and pID !=''"> and p_id = #{pID} </if> 	
+			  <if test="dID != null and dID !=''"> and d_id = #{dID} </if> 			  
+		 </where> 		
+    </select>
+
+    
+     <!-- 医生端    获取编辑训练计划  4个参数-->
+    <select  id="getJhForJson" resultMap="jhResultMap"> 
+        <!-- select t.* from ( 
+			select j.*,s.id as spid,s.xm_id,s.titles,s.watch_time,s.vedio_time as sp_time,s.scores,s.comments,s.last_pc_time,s.xl_percent from  p_xljh j
+			left join p_xlsp s
+			on j.d_id = s.d_id
+			and  j.p_id = s.p_id
+			and  j.week = s.week
+			and  j.day = s.day
+			and  j.time = s.time
+			and  j.type = s.type) t -->
+			select * from p_xljh
+         <where> 
+              xlmb = #{xlmb} 
+			  <if test="type != null and type !=''"> and type = #{type} </if>
+			  <if test="pID != null and pID !=''"> and p_id = #{pID} </if> 	
+			  <if test="dID != null and dID !=''"> and d_id = #{dID} </if> 			  
+		 </where> 		    
+    </select>
+    
+     
+
+</mapper>

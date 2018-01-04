@@ -1,0 +1,137 @@
+
+<!--  <?xml version="1.0" encoding="UTF-8" ?>-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jyss.mst.mapper.XtNewsMapper" > 
+
+    <resultMap type="com.jyss.mst.entity.Xtnews" id="xtNewResultMap">   
+        <id property="id" column="id"  />
+        <result property="title" column="title"  />
+        <result property="pic" column="pic"  />
+        <result property="byteSize" column="byte_size"  />        
+        <result property="ps1" column="ps1"  />
+        <result property="ps2" column="ps2"  />
+        <result property="type" column="type"  />
+        <result property="createdAt" column="created_at"  />
+        <result property="lastModifyTime" column="last_modify_time"  />
+        <result property="cjsj" column="cjsj"  />
+        <result property="xgsj" column="xgsj"  />
+        <result property="keytype" column="keytype"  />
+        
+
+    </resultMap>  
+
+        <resultMap type="com.jyss.mst.entity.Xtgx" id="xtgxResultMap">   
+        <id property="id" column="id"  />
+        <result property="titles" column="titles"  />
+        <result property="src" column="src"  />
+        <result property="byteSize" column="byte_size"  />        
+        <result property="contents" column="contents"  />
+        <result property="type" column="type"  />
+        <result property="appVersion" column="app_version"  />
+        <result property="createdAt" column="created_at"  />
+        <result property="lastModifyTime" column="last_modify_time"  />
+        <result property="cjsj" column="cjsj"  />
+        <result property="xgsj" column="xgsj"  />
+
+    </resultMap> 
+    
+    
+  
+    
+    <!-- 病人端-->  
+    <!-- 查询最新系统消息--> 
+    <select id="getPatXtNews" resultMap="xtNewResultMap" >  
+         select n.*,DATE_FORMAT(n.created_at, '%Y-%m-%d %H:%i:%s' ) cjsj,DATE_FORMAT(n.last_modify_time, '%Y-%m-%d %H:%i:%s' ) xgsj
+        	from p_xt_news  n    
+        	order by n.id desc
+        	limit 1
+    </select>  
+     
+   <!-- 查询最新系统更新===病人端--> 
+    <select id="getPatXtgx" resultMap="xtgxResultMap" >  
+         select n.*,DATE_FORMAT(n.created_at, '%Y-%m-%d %H:%i:%s' ) cjsj,DATE_FORMAT(n.last_modify_time, '%Y-%m-%d %H:%i:%s' ) xgsj
+        	from p_xtgx  n 
+        	where type = 1   
+        	order by n.id desc
+        	limit 1
+    </select>  
+    
+   
+    <!-- 后台-->  
+    <!-- 系统更新--> 
+    <select id="getXtgx" resultMap="xtgxResultMap" >  
+         select n.*,DATE_FORMAT(n.created_at, '%Y-%m-%d %H:%i:%s' ) cjsj,DATE_FORMAT(n.last_modify_time, '%Y-%m-%d %H:%i:%s' ) xgsj
+        	from p_xtgx  n     order by n.last_modify_time desc
+    </select> 
+    
+    <select id="getXtgxBy" resultMap="xtgxResultMap">  
+        select n.*,DATE_FORMAT(n.created_at, '%Y-%m-%d %H:%i:%s' ) cjsj,DATE_FORMAT(n.last_modify_time, '%Y-%m-%d %H:%i:%s' ) xgsj
+       	   from p_xtgx n 
+         <where> 
+			  <if test="titles != null and titles !=''"> n.titles  LIKE CONCAT('%',#{titles},'%') </if> 			  
+		 </where> 
+		 order by n.last_modify_time desc
+    </select> 
+
+     <insert id="addXtgx" parameterType="com.jyss.mst.entity.Xtgx" 
+        useGeneratedKeys="true" keyProperty="id"> 
+        insert into p_xtgx values(null,#{titles},#{appVersion},#{src},#{byteSize},#{contents},#{type},#{createdAt},null)  
+            
+    </insert>
+    
+    <update id="updateXtgx" parameterType="com.jyss.mst.entity.Xtgx" >
+        update p_xtgx
+           set titles = #{titles},src = #{src},app_version=#{appVersion},contents = #{contents},type = #{type},last_modify_time = #{lastModifyTime},byte_size = #{byteSize}
+        where id=#{id}
+    </update>
+    
+    <delete id="deleteXtgx" parameterType="java.util.List">
+        delete from p_xtgx  where id in 
+	    <foreach collection="ids" item="id" open="(" separator="," close=")">   
+	        #{id}   
+	    </foreach>  
+    </delete>
+    
+      <!-- 系统消息--> 
+    <select id="getXtNews" resultMap="xtNewResultMap" >  
+         select n.*,DATE_FORMAT(n.created_at, '%Y-%m-%d %H:%i:%s' ) cjsj,DATE_FORMAT(n.last_modify_time, '%Y-%m-%d %H:%i:%s' ) xgsj
+        	from p_xt_news n   
+         <where> 			  
+			  <if test="keytype != null and keytype !=''"> n.keytype  LIKE CONCAT('%',#{keytype},'%') </if> 			  
+		 </where> 
+       order by n.last_modify_time desc
+    </select> 
+    
+    <select id="getXtNewsBy" resultMap="xtNewResultMap">  
+        select n.*,DATE_FORMAT(n.created_at, '%Y-%m-%d %H:%i:%s' ) cjsj,DATE_FORMAT(n.last_modify_time, '%Y-%m-%d %H:%i:%s' ) xgsj
+       	   from p_xt_news n 
+         <where> 
+			  <if test="title != null and title !=''"> n.title  LIKE CONCAT('%',#{title},'%') </if> 
+			  <if test="keytype != null and keytype !=''"> and n.keytype  LIKE CONCAT('%',#{keytype},'%') </if> 			  
+		 </where> 
+		 order by n.last_modify_time desc
+    </select> 
+
+     <insert id="addXtNews" parameterType="com.jyss.mst.entity.Xtnews" 
+        useGeneratedKeys="true" keyProperty="id"> 
+        insert into p_xt_news values(null,#{title},#{pic},#{byteSize},#{contents},#{ps1},#{ps2},#{type},#{createdAt},null,#{keytype})  
+            
+    </insert>
+    
+    <update id="updateXtNews" parameterType="com.jyss.mst.entity.Xtnews" >
+        update p_xt_news
+           set title = #{title},pic = #{pic},contents = #{contents},ps1 = #{ps1},ps2 = #{ps2},last_modify_time = #{lastModifyTime},byte_size = #{byteSize}
+        where id=#{id}
+    </update>
+    
+    <delete id="deleteXtNews" parameterType="java.util.List">
+        delete from p_xt_news  where id in 
+	    <foreach collection="ids" item="id" open="(" separator="," close=")">   
+	        #{id}   
+	    </foreach>  
+    </delete>
+    
+
+</mapper>

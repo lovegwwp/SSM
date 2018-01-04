@@ -1,0 +1,254 @@
+
+<!--  <?xml version="1.0" encoding="UTF-8" ?>-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jyss.mst.mapper.XlspMapper" > 
+
+    <resultMap type="com.jyss.mst.entity.Xlsp" id="spResultMap">   
+        <id property="id" column="id"  />
+        <result property="xmID" column="xm_id"  />  
+        <result property="type" column="type"  />      
+        <result property="watchTime" column="watch_time"  />
+        <result property="vedioTime" column="vedio_time"  />
+        <result property="scores" column="scores"  />
+        <result property="comments" column="comments"  />           
+        <result property="createdAt" column="created_at"  />
+        <result property="lastModifyTime" column="last_modify_time"  />
+        <result property="lastPcTime" column="last_pc_time"  />     
+        <result property="cjsj" column="cjsj"  />
+        <result property="xgsj" column="xgsj"  />
+        <result property="pcsj" column="pcsj"  />
+        <result property="dID" column="d_id"  />
+        <result property="uname" column="uname"  />
+        <result property="pID" column="p_id"  />  
+        <result property="status" column="status"  />  
+        <result property="week" column="week"  />  
+        <result property="day" column="day"  />
+        <result property="time" column="time"  />
+        <result property="titles" column="titles"  />
+        <result property="vedioType" column="vedioType"  />
+        <result property="xlPercent" column="xl_percent"  />
+        <result property="vedio" column="vedio"  />
+
+    </resultMap>   
+    
+   <resultMap type="com.jyss.mst.entity.Xlsp" id="bjSpMap">   
+        <id property="id" column="id"  />
+        <result property="xmID" column="xm_id"  />  
+        <result property="titles" column="titles"  />
+    </resultMap>  
+    
+    <!-- 病人端          视频下载列表-->
+    <select  id="getPatSpLoad" resultMap="spResultMap"> 
+         select t.vedio,t.vedio_type ,t.p_id,t.type,t.status,t.titles ,t.last_modify_time  from (
+			select ifnull(if(x.vedio='','0',x.vedio),'0') as vedio ,x.vedio_type ,s.p_id,s.type,s.status,s.titles ,x.last_modify_time  from p_xlsp s
+			left join  p_xlxm  x
+		<!-- 	on s.titles = x.titles where x.last_modify_time &gt; FROM_UNIXTIME(#{sjc}/1000)   -->
+			on s.titles = x.titles where x.last_modify_time &gt; FROM_UNIXTIME(1505714948)  			
+		 group by  vedio ) t
+         <where> 
+               vedio != '0' and status =1 
+			  <if test="pID != null and pID !=''"> and p_id = #{pID} </if> 				  
+		 </where>		
+    </select>
+    
+     <select  id="getPatLoadHistory" resultMap="spResultMap"> 
+         select s.*,DATE_FORMAT(s.last_modify_time, '%Y-%m-%d %H:%i:%s' ) cjsj,d.uname from (
+				select * from p_xlsp where status=1
+				group by d_id,type )s
+			left join p_account_doctors d
+			on s.d_id =d.id
+			where s.last_modify_time &gt; FROM_UNIXTIME(#{sjc}/1000)  and s.p_id = #{pID} 
+      	
+    </select>
+    
+        
+    
+    <!-- 病人端         具体训练方案 视频列表展示-->
+    <select  id="getXlSpByPat" resultMap="spResultMap"> 
+        select * from (
+			select s.d_id,s.p_id,s.type,s.week,s.day,s.time,s.titles,s.xm_id,s.watch_time,s.vedio_time,s.created_at,s.status,if(length(trim(ifnull(s.xl_percent,0)))=0,0,ifnull(s.xl_percent,0)) as xl_percent,x.vedio from p_xlsp s
+			left join  p_xlxm x
+			on s.titles = x.titles ) t 
+         <where>              
+              <if test="status != null and status !=''"> t.status = #{status} </if> 	
+			  <if test="week != null and week !=''">and  t.week = #{week} </if> 	
+			  <if test="day != null and day !=''"> and  t.day = #{day} </if> 				  
+			  <if test="time != null and time !=''"> and t.time = #{time} </if> 
+			  <if test="dID != null and dID !=''"> and t.d_id = #{dID} </if> 
+			  <if test="pID != null and pID !=''"> and t.p_id = #{pID} </if> 	
+			  <if test="type != null and type !=''"> and t.type = #{type} </if> 				  
+		 </where>
+		 order by  t.created_at desc  		
+    </select>
+    
+     <!-- 病人端         具体评测方案 列表展示-->
+    <select  id="getPcByPat" resultMap="spResultMap"> 
+        select * from (
+			select s.d_id,s.p_id,s.type,s.week,s.day,s.time,s.titles,s.watch_time,s.vedio_time,s.created_at,s.status,ifnull(s.xl_percent,0) as xl_percent,x.vedio from p_xlsp s
+			left join  p_pcxm x
+			on s.titles = x.titles ) t 
+         <where> 
+             <!--  t.status =1 -->
+              <if test="status != null and status !=''"> t.status = #{status} </if> 
+			  <if test="week != null and week !=''">and  t.week = #{week} </if> 	
+			  <if test="day != null and day !=''"> and  t.day = #{day} </if> 				  
+			  <if test="time != null and time !=''"> and t.time = #{time} </if> 
+			  <if test="dID != null and dID !=''"> and t.d_id = #{dID} </if> 
+			  <if test="pID != null and pID !=''"> and t.p_id = #{pID} </if> 	
+			  <if test="type != null and type !=''"> and t.type = #{type} </if> 				  
+		 </where>
+		 order by  t.created_at desc  		
+    </select>
+    
+   <select  id="getPcTitles" resultMap="spResultMap"> 
+        select * from   p_pcxm 		
+         <where>            
+			  <if test="id != null and id !=''"> and id = #{id} </if> 					  
+		 </where>		 
+    </select>
+    
+    
+    <!-- 返回观看视频时长 计算百分比 -->
+    <update id="computePercent" parameterType="com.jyss.mst.entity.Xlsp" >
+        update p_xlsp
+           set xl_percent = #{xlPercent} , watch_time = #{watchTime} , vedio_time = #{vedioTime}, last_modify_time = #{lastModifyTime} 
+        where status =1 and p_id=#{pID} and d_id = #{dID} and type = #{type} 
+              and week =#{week} and day =#{day} and time =#{time} 
+              <!-- and titles =#{titles} -->
+    </update>
+    
+    <!-- 更新评测内容 -->
+    <update id="upPcComment" parameterType="com.jyss.mst.entity.Xlsp" >
+        update p_xlsp
+           set comments = #{comments} ,last_pc_time = #{lastPcTime} 
+        where status =1 and p_id=#{pID} and d_id = #{dID} and type = #{type} 
+              and week =#{week} and day =#{day} and time =#{time}   and titles =#{titles} 
+    </update>
+    
+  
+    <!-- 医生端  添加训练计划视频关系-->  
+      <insert id="addSp" parameterType="com.jyss.mst.entity.Xlsp" 
+        useGeneratedKeys="true" keyProperty="id"> 
+        insert into p_xlsp 
+        values(null,#{xmID},#{type},#{watchTime},#{vedioTime},#{scores},#{comments},#{createdAt},null,
+        null,#{dID},#{pID},#{status},#{week},#{day},#{time},#{titles},#{vedioType},#{xlPercent})  
+            
+    </insert>
+    
+     <!-- 医生端  复制模板视频-->  
+      <insert id="copyMbSp" parameterType="com.jyss.mst.entity.Xlsp" 
+        useGeneratedKeys="true" keyProperty="id"> 
+        insert into p_xlsp(xm_id,type,vedio_time,d_id,p_id,status,week,day,time,titles,vedio_type)
+      	    select xm_id,type,vedio_time,d_id, #{pID} as p_id, 0 as status , week,day,time,titles,vedio_type from p_xlsp 
+       		   where d_id = #{dID} and status = 2 and type = #{type} 
+            
+    </insert>
+    
+    <!-- 医生端  保存为模板视频   应先删除旧模板-->  
+      <insert id="saveMbSp" parameterType="com.jyss.mst.entity.Xlsp" 
+        useGeneratedKeys="true" keyProperty="id"> 
+       insert into p_xlsp(xm_id,type,vedio_time,d_id,status,week,day,time,titles,vedio_type)
+      	    select xm_id,type,vedio_time,d_id, 2 as status , week,day,time,titles,vedio_type from p_xlsp 
+       		   where d_id = #{dID}  and p_id=#{pID}  and status = 0 and type = #{type}            
+    </insert>
+    <!-- 医生端 编辑视频  视频列表展示-->
+    <select  id="getBjSp" resultMap="bjSpMap"> 
+        select id,xm_id,titles from p_xlsp 
+         <where> 
+              status not in(2) 
+			  <if test="week != null and week !=''">and  week = #{week} </if> 	
+			  <if test="day != null and day !=''"> and  day = #{day} </if> 				  
+			  <if test="time != null and time !=''"> and time = #{time} </if> 
+			  <if test="dID != null and dID !=''"> and d_id = #{dID} </if> 
+			  <if test="pID != null and pID !=''"> and p_id = #{pID} </if> 	
+			  <if test="type != null and type !=''"> and type = #{type} </if> 				  
+		 </where> 		
+    </select>
+    
+    <!-- 医生端   删除方案全部视频-->  
+     <delete id="delFaSp" >
+        delete from p_xlsp  
+	    <where> 
+              status not in(2)
+			  <if test="dID != null and dID !=''"> and d_id = #{dID} </if> 
+			  <if test="pID != null and pID !=''"> and p_id = #{pID} </if> 	
+			  <if test="type != null and type !=''"> and type = #{type} </if> 				  
+		 </where> 	
+    </delete>
+    
+    <!-- 医生端 编辑视频  删除已添加视频-->  
+     <delete id="deleteSp" parameterType="java.util.List">
+        delete from p_xlsp  where id in 
+	    <foreach collection="ids" item="id" open="(" separator="," close=")">   
+	        #{id}   
+	    </foreach>  
+    </delete>
+    
+     <!-- 医生端 编辑视频  删除该病人某天某次全部视频-->  
+     <delete id="delSpByDayAndTime" parameterType="com.jyss.mst.entity.Xlsp">
+        delete from p_xlsp  where id in 
+	    <where> 
+              status not in(2)
+			  <if test="week != null and week !=''">and  week = #{week} </if> 	
+			  <if test="day != null and day !=''"> and  day = #{day} </if> 				  
+			  <if test="time != null and time !=''"> and time = #{time} </if> 
+			  <if test="dID != null and dID !=''"> and d_id = #{dID} </if> 
+			  <if test="pID != null and pID !=''"> and p_id = #{pID} </if> 	
+			  <if test="type != null and type !=''"> and type = #{type} </if> 				  
+		 </where> 	
+    </delete>
+    
+   <!-- 医生端   删除多余模板视频-->
+    <delete id="delMbSp" parameterType="com.jyss.mst.entity.Xljh">
+        delete from p_xlsp  
+	       where  status = 2 and type=#{type} and d_id = #{dID} 
+    </delete>
+    
+      <!-- 医生端  替换同类型视频  -->
+    <delete id="replaceSpType" parameterType="com.jyss.mst.entity.Xlsp">
+        delete from p_xlsp  
+	       where  p_id=#{pID} and d_id = #{dID} and type = #{type}
+    </delete>
+    
+     <!-- 医生端   删除多余未激活视频-->
+    <delete id="delMoreSp" parameterType="com.jyss.mst.entity.Xlsp">
+        delete from p_xlsp  
+	       where  status = 2 and p_id=#{pID} and d_id = #{dID} 
+    </delete>
+    
+    <!-- 医生端  激活视频-->
+    <update id="activeSp" parameterType="com.jyss.mst.entity.Xlsp" >
+        update p_xlsp
+           set status = #{status}
+        where status =0 and p_id=#{pID} and d_id = #{dID} and type = #{type}
+    </update>
+    
+     <!-- 医生端  获取好友列表 训练进度-->
+     <select  id="getJsonXlPercent" resultType="com.jyss.mst.entity.Xlsp"> 
+         select t.type,ifnull(avg(ifnull(t.xl_percent,0)),0) as xlPercent, max(t.last_modify_time) as  lastModifyTime 
+		 from 
+			(select x.* from p_xlsp x 
+			<!-- where  status =1 and x.p_id=#{pID}  and x.type=#{type}  -->
+			 <where> 
+             status =1
+			  <if test="pID != null and pID !=''">and  x.p_id = #{pID} </if> 	
+			  <if test="dID != null and dID !=''">and  x.d_id = #{dID} </if> 	
+			  <if test="type != null and type !=''"> and  type = #{type} </if> 				  					  
+		    </where> 	
+			) t 
+		group by t.type
+		order by last_modify_time desc 
+		limit 1        
+    </select>
+    
+    <select  id="getPatXlType" resultMap="spResultMap"> 
+           select * from p_xlsp  
+              where p_id=#{pID} and d_id=#{dID} and type is not null and type !='' 
+              group by type 
+    </select>
+    
+ 
+
+</mapper>

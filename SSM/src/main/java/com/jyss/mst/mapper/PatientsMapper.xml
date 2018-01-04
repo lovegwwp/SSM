@@ -1,0 +1,334 @@
+
+<!--  <?xml version="1.0" encoding="UTF-8" ?>-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jyss.mst.mapper.PatientsMapper" > 
+
+    <resultMap type="com.jyss.mst.entity.Patients" id="patResultMap">   
+        <id property="id" column="id"  />
+        <result property="account" column="account"  />
+        <result property="uname" column="uname"  />
+        <result property="sex" column="sex"  />
+        <result property="age" column="age"  />            
+        <result property="uuid" column="uuid"  />
+        <result property="avatar" column="avatar"  />
+        <result property="nick" column="nick"  />
+        <result property="province_id" column="province_id"  />
+        <result property="province" column="province"  />
+        <result property="city_id" column="city_id"  />
+        <result property="city" column="city"  />
+        <result property="area_id" column="area_id"  />
+        <result property="area" column="area"  />
+        <result property="addr" column="addr"  />
+        <result property="talkTime" column="talk_time" jdbcType="INTEGER" />
+        <result property="videoTime" column="video_time" jdbcType="INTEGER" />
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="lastModifyTime" column="last_modify_time"  jdbcType="TIMESTAMP"/>
+        <result property="lastLoginTime" column="last_login_time" jdbcType="TIMESTAMP" />
+        <result property="lastLocateTime" column="last_locate_time" jdbcType="TIMESTAMP" />
+        <result property="status" column="status" />
+        <result property="blId" column="bl_id" />
+        <result property="bId" column="bid" />
+        <result property="zdId" column="zd_id" />
+        <result property="cjsj" column="cjsj"  />
+        <result property="xgsj" column="xgsj"  />
+        <!--病例--> 
+        <result property="ls" column="ls" />
+        <result property="hc" column="hc" />
+        <result property="cxbw" column="cxbw" />
+        <result property="cxdx" column="cxdx"  />
+         <!--诊断--> 
+        <result property="ksId" column="ks_id" /> 
+        <result property="ksName" column="ks_name" /> 
+        <result property="dwId" column="dw_id" /> 
+        <result property="dwName" column="dw_name" />      
+        <result property="jbqk" column="jbqk" />
+        <result property="bq" column="bq" />
+        <result property="zd" column="zd"  />
+
+    </resultMap>  
+     
+      <resultMap type="com.jyss.mst.entity.PatSample" id="psResultMap">   
+        <id property="id" column="id"  />
+        <result property="account" column="account"  />
+        <result property="uname" column="uname"  />
+        <result property="sex" column="sex"  />
+        <result property="age" column="age"  />            
+        <result property="avatar" column="avatar"  />
+        <result property="nick" column="nick"  />
+        <result property="addr" column="addr"  />
+        <result property="status" column="status" />
+        <result property="zdId" column="zd_id" />
+        <result property="ys" column="ys" />
+         <!--诊断--> 
+         <result property="dId" column="d_id"  />    
+        <result property="jbqk" column="jbqk" />
+        <result property="bq" column="bq" />
+        <result property="zd" column="zd"  />
+
+    </resultMap> 
+    
+     <resultMap type="com.jyss.mst.entity.Zd" id="zdResultMap">   
+        <result property="ksId" column="ks_id" /> 
+        <result property="pId" column="p_id" /> 
+        <result property="uname" column="uname" />       
+        <result property="dId" column="d_id" /> 
+        <result property="ksName" column="ks_name" /> 
+        <result property="dwId" column="dw_id" /> 
+        <result property="dwName" column="dw_name" />      
+        <result property="jbqk" column="jbqk" />
+        <result property="bq" column="bq" />
+        <result property="zd" column="zd"  />
+    </resultMap> 
+    
+    
+    <resultMap type="com.jyss.mst.entity.TjEntity" id="tjResultMap">   
+        <result property="province" column="province" /> 
+        <result property="city" column="city" /> 
+        <result property="dw" column="dw" />       
+        <result property="num" column="num" />      
+    </resultMap> 
+    
+    
+    
+    
+     <!--医生端   获取个体病人-->  
+         
+     <select id="getPatSample" resultMap="psResultMap">
+     select * from (  
+	      select p.id,p.account,p.uname,ifnull(p.sex,'0') as sex ,ifnull(p.age,'0') as age,p.avatar,p.nick,p.status,concat(p.province,p.city,p.area) as addr ,p.zd_id,z.d_id,z.bq,z.jbqk,z.zd ,d.uname as ys from p_account_patients p 
+				left join p_zd z 
+				on p.zd_id =z.id
+				left join p_account_doctors d
+				on z.d_id =d.id) v
+        where  v.status =1 and id =#{pId}
+    </select>  
+    
+    <!--医生端   查询 搜索病人-->  
+    
+     <select id="getPatByDoc" resultMap="patResultMap">  
+       select id,account,uname,ifnull(sex,'0') as sex ,ifnull(age,'0') as age,avatar,nick,concat(province,city,area) as addr,zd_id 
+         from  p_account_patients 
+         <where> 
+              status = 1
+			  <if test="account != null and account !=''">and  account  LIKE CONCAT('%',#{account},'%') </if> 
+			  <if test="uname != null and uname !=''"> and  uname  LIKE CONCAT('%',#{uname},'%') </if> 
+			  <if test="addr != null and addr !=''"> and  addr  LIKE CONCAT('%',#{addr},'%') </if> 
+			  <if test="sex != null and sex !=''"> and  sex = #{sex} </if> 
+			  <if test="age1 != null and age1 !=''">and  age &gt;= #{age1} </if> 
+			  <if test="age2 != null and age2 !=''">and  age &lt;= #{age2} </if> 
+		 </where> 
+    </select>  
+    
+     
+    
+    <!--病人端--> 
+    
+     <!-- 修改 视频时长 -->
+    <update id="upVedioTime" >
+        update p_account_patients
+           set video_time = ifnull(video_time,0) - #{videoTime}
+        where id=#{id} 
+    </update>
+    
+      <!-- 充值 视频时长 -->
+    <update id="upVedioTimeByCz"  > 
+        update p_account_patients
+           set video_time = ifnull(video_time,0) + #{videoTime}
+        where account=#{account} 
+    </update>
+    
+    <!-- 修改 通话时长 -->
+    <update id="upTalkTime"  >
+        update p_account_patients
+           set talk_time = ifnull(talk_time,0) - #{talkTime}
+        where id=#{id} 
+    </update>
+    
+     <!-- 修改 通话时长 -->
+    <update id="upTalkTimeByCz"  >
+        update p_account_patients
+           set talk_time = ifnull(talk_time,0) + #{talkTime}
+        where account=#{account} 
+    </update>
+    
+   <!--病人 修改 个人地址 -->
+   <update id="upPatbyPat" parameterType="com.jyss.mst.entity.Patients" >
+        update p_account_patients
+           set  province = #{province},city = #{city},area = #{area},addr = #{addr},last_modify_time = #{lastModifyTime}
+        where id=#{id}
+    </update>
+    
+    <!--后台 查询-->  
+     <!-- 统计==分割==下面代码 -->
+     <!-- 统计==病人区域 -->
+     <select id="getPatAddrTj" resultMap="tjResultMap" parameterType ="String">  
+	    select t.* from (
+			    select province,city,count(id) as num  from p_account_patients where province is not null and city is not null 
+					group by province,city )t
+         <where> 
+              1=1
+			  <if test="province != null and province !='' and province !='AA' "> and t.province = #{province} </if> 
+			  <if test="city != null and city !='' and city !='AA'"> and t.city  = #{city} </if> 
+		 </where> 
+		 order by t.province, t.city
+    </select> 
+    
+    <!-- 统计==在线==病人区域 -->
+     <select id="getPatOnTj" resultMap="tjResultMap" parameterType ="String">  
+	    select t.* from (
+			    select m.province,m.city,count(m.id) as num  
+			          from (select * from p_account_patients where province is not null and city is not null and  TIMESTAMPDIFF(Minute,last_login_time,now()) &lt; #{dlsjxz}*60) m
+                 group by m.province,m.city )t
+         <where> 
+              1=1
+			  <if test="province != null and province !=''  and province !='AA' "> and t.province = #{province} </if> 
+			  <if test="city != null and city !=''  and city !='AA' "> and t.city  = #{city} </if> 
+		 </where> 
+		 order by t.province, t.city
+    </select> 
+    
+     <!-- 统计==单位==病人 -->
+     <select id="getPatDwTj" resultMap="tjResultMap" parameterType ="String">  
+	    select t.* from (
+			   select m.dw_name as city,count(m.id) as num from  
+					  ( select p.*,z.dw_name from  p_account_patients p  left join  p_zd z on p.zd_id = z.id ) m
+			   where  m.dw_name is not null
+			   group by m.dw_name )t
+         <where> 
+              1=1
+			  <if test="dw != null and dw !=''  and dw !='AA' "> and t.city = #{dw} </if> 			 
+		 </where> 
+		 order by t.city
+    </select> 
+      <!-- 统计==分割==上面代码 -->
+    
+    <select id="getPat" resultMap="patResultMap" >  
+       
+       	   select p.*,DATE_FORMAT(p.created_at, '%Y-%m-%d %H:%i:%s' ) cjsj,DATE_FORMAT(p.last_modify_time, '%Y-%m-%d %H:%i:%s' ) xgsj ,b.ls,b.hc,b.cxbw,b.cxdx,z.dw_id,z.dw_name,z.ks_id,z.ks_name,z.bq,z.jbqk,z.zd
+	       	 from p_account_patients  p  
+				left join p_bl b
+				on p.id = b.p_id
+				left join  p_zd  z
+				on p.zd_id = z.id
+			order by p.last_modify_time desc
+    </select> 
+    
+    <select id="getPatBy" resultMap="patResultMap" >  
+	    select t.* from (
+	         select p.*,DATE_FORMAT(p.created_at, '%Y-%m-%d %H:%i:%s' ) cjsj,DATE_FORMAT(p.last_modify_time, '%Y-%m-%d %H:%i:%s' ) xgsj ,b.ls,b.hc,b.cxbw,b.cxdx,z.ks_name,z.bq,z.jbqk,z.zd
+		       	 from p_account_patients  p  
+					left join p_bl b
+					on p.id = b.p_id
+					left join  p_zd  z
+					on p.zd_id = z.id  )t
+         <where> 
+			  <if test="account != null and account !=''"> t.account  LIKE CONCAT('%',#{account},'%') </if> 
+			  <if test="uname != null and uname !=''"> and t.uname  LIKE CONCAT('%',#{uname},'%') </if> 
+			  <if test="sex != null and sex !=''"> and  t.sex = #{sex} </if> 
+			  <if test="province != null and province !=''"> and t.province  LIKE CONCAT('%',#{province},'%') </if> 
+			  <if test="city != null and city !=''"> and t.city  LIKE CONCAT('%',#{city},'%') </if> 
+			  <if test="area != null and area !=''"> and t.area  LIKE CONCAT('%',#{area},'%') </if> 
+		 </where> 
+		 order by t.last_modify_time desc
+    </select>   
+    
+    <!-- 获取病人个体 -->
+     <select id="getMe" resultMap="patResultMap"  parameterType ="String">  
+        select t.* from (
+         select p.*,DATE_FORMAT(p.created_at, '%Y-%m-%d %H:%i:%s' ) cjsj,DATE_FORMAT(p.last_modify_time, '%Y-%m-%d %H:%i:%s' ) xgsj,b.id as bid,b.ls,b.hc,b.cxbw,b.cxdx,z.ks_name,z.bq,z.jbqk,z.zd
+	       	 from p_account_patients  p  
+				left join p_bl b
+				on p.id = b.p_id
+				left join  p_zd  z
+				on p.zd_id = z.id  )t
+         <where> 
+			  <if test="account != null and account !=''"> t.status = 1 and  t.account = #{account} </if> 
+		 </where> 
+		 limit 0,1
+    </select> 
+    
+        <!-- 获取病人诊断详情 -->
+     <select id="getZdList" resultMap="zdResultMap"  parameterType ="String">  
+            select z.*,d.uname from p_zd z 
+				left join p_account_doctors d
+				on z.d_id = d.id 			
+         <where> 
+			  <if test="pId != null and pId !=''"> z.p_id = #{pId} </if> 
+		 </where> 	
+    </select> 
+    
+    
+     <insert id="addPat" parameterType="com.jyss.mst.entity.Patients" 
+        useGeneratedKeys="true" keyProperty="id"> 
+        insert into p_account_patients values(null,#{account},#{uname},#{sex},#{age},#{uuid},#{avatar},
+               #{nick},#{province_id},#{province},#{city_id},#{city},#{area_id},#{area},#{createdAt},null,
+               null,null,#{status},#{talkTime},#{addr},#{videoTime},#{blId},#{zdId})             
+    </insert>
+    
+     <!-- 修改 病人 诊断号 -->
+    <update id="upPatZdId" parameterType="int" >
+        update p_account_patients
+           set zd_id = #{zdId}
+        where id=#{id} 
+    </update>
+    <!-- 增加病例 -->
+     <insert id="addBl" parameterType="com.jyss.mst.entity.Bl" 
+        useGeneratedKeys="true" keyProperty="id"> 
+        insert into p_bl values(null,#{dId},#{pId},#{ls},#{hc},#{cxbw},#{cxdx},
+               #{status},#{createdAt},#{lastModifyTime})             
+    </insert>
+     <!-- 修改病例 -->
+    <update id="upBl" parameterType="com.jyss.mst.entity.Bl" >
+        update p_bl
+           set ls = #{ls},hc = #{hc},cxbw = #{cxbw},cxdx = #{cxdx},last_modify_time = #{lastModifyTime}
+        where p_id=#{pId}
+    </update>
+    
+     <!-- 增加诊断基本情况 -->
+     <insert id="addZd" parameterType="com.jyss.mst.entity.Zd" 
+        useGeneratedKeys="true" keyProperty="id"> 
+        insert into p_zd values(null,#{dId},#{pId},#{ksId},#{ksName},#{bq},#{jbqk},
+               #{zd}, #{status},#{createdAt},#{lastModifyTime},#{dwId},#{dwName})             
+    </insert>
+    
+    <!-- 修改诊断 -->
+    <update id="upZd" parameterType="com.jyss.mst.entity.Zd" >
+        update p_zd
+           set ks_id = #{ksId},ks_name = #{ksName},bq = #{bq},zd = #{zd},jbqk = #{jbqk},last_modify_time = #{lastModifyTime}
+        where p_id=#{pId} and d_id= -1
+    </update>
+    
+    <!--医生修改病人  修改诊断  内容-->
+    <update id="upZdContent" parameterType="com.jyss.mst.entity.Zd" >
+        update p_zd
+           set zd = #{zd},last_modify_time = #{lastModifyTime}
+        where p_id=#{pId} and d_id= #{dId} and id = #{id}
+    </update>
+    
+     <!-- 医生增加病人  诊断基本情况 -->
+     <insert id="addZdContent" parameterType="com.jyss.mst.entity.Zd" 
+        useGeneratedKeys="true" keyProperty="id"> 
+        insert into p_zd (d_id,p_id,ks_id,ks_name,bq,jbqk,zd,status,dw_id,dw_name)
+          select #{dId},#{pId},ks_id,ks_name,bq,jbqk,#{zd},1,dw_id,dw_name from p_zd
+            where id = #{id} and  p_id = #{pId}             
+    </insert>
+    
+    
+    <update id="updatePat" parameterType="com.jyss.mst.entity.Patients" >
+        update p_account_patients
+           set uname = #{uname},sex = #{sex},age = #{age},province_id = #{province_id}, province = #{province},
+           city_id = #{city_id},city = #{city},area_id = #{area_id},area = #{area}, talk_time = #{talkTime},
+           video_time = #{videoTime},addr = #{addr},account = #{account},last_modify_time = #{lastModifyTime}
+        where id=#{id}
+    </update>
+    
+    <delete id="deletePat" parameterType="java.util.List">
+        delete from p_account_patients where id in 
+	    <foreach collection="ids" item="id" open="(" separator="," close=")">   
+	        #{id}   
+	    </foreach>  
+    </delete>
+
+</mapper>

@@ -1,0 +1,290 @@
+
+<!--  <?xml version="1.0" encoding="UTF-8" ?>-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jyss.mst.mapper.PatDocMapper" > 
+
+    <resultMap type="com.jyss.mst.entity.PatDoc" id="pdResultMap">   
+        <id property="id" column="id"  />
+        <result property="dId" column="d_id"  />
+        <result property="pId" column="p_id"  />
+        <result property="docId" column="doc_id"  />  
+        <result property="groupId" column="group_id"  /> 
+        <result property="groupName" column="group_name"  />
+        <result property="zdId" column="zd_id"  />
+        <result property="zd" column="zd"  />
+        <result property="status" column="status"  />  
+        <result property="type" column="type"  />
+        <result property="scores" column="scores"  />        
+        <result property="createdAt" column="created_at"  />
+        <result property="lastModifyTime" column="last_modify_time"  />
+        <result property="docGroupName" column="doc_group_name"  />
+        <result property="docPs" column="doc_ps"  />
+        <result property="yzInfo" column="yz_info"  />
+        <result property="isRead" column="is_read"  />
+        <!-- 视图字段 -->
+        <result property="account" column="account"  />
+         <result property="avatar" column="avatar"  />
+        <result property="uname" column="uname"  />
+        <result property="duname" column="duname"  />
+        <result property="sex" column="sex"  />      
+        <result property="dw_name" column="dw_name"  />     
+        <result property="ks_name" column="ks_name"  />
+        <result property="age" column="age"  />
+        <result property="job" column="job"  />
+        <result property="skills" column="skills"  />
+        <result property="abstracts" column="abstracts"  />
+        <result property="lableNames" column="lable_names"  />
+        <result property="videoTime" column="video_Time"  />
+        <result property="talkTime" column="talk_Time"  />
+
+
+    </resultMap>  
+     
+     
+    <!--病人 获取好友分组  1初始添加状态 2 通过好友状态 3 拒绝还有状态 0解绑状态 移除关系 -->
+    <select id="getPGroup" resultMap="pdResultMap">  
+        select group_name,count(group_name) AS zd  from p_pat_doc 
+         <where> 
+			  <if test="pId != null and pId !=''">status in(2,5) and   p_id = #{pId} </if> 			  
+		 </where> 
+		 group by group_name  order by group_name
+    </select> 
+    
+      <!--病人 获取好友 -->
+    <select id="getPFriend" resultMap="pdResultMap">  
+        select * from (select t.*,d.account,d.uname,d.avatar,ifnull(d.sex,'0') as sex ,d.scores,ifnull(d.age,'0') as age ,d.dw_name,d.ks_name,d.job,d.skills,d.abstracts,d.lable_names 
+       					 from p_pat_doc t left join p_account_doctors d on t.doc_id = d.id  order by t.group_name , t.doc_id) m
+         <where> 
+              m.status in(2,5)
+			  <if test="pId != null and pId !=''">  and   m.p_id = #{pId} </if> 
+			  <if test="groupName != null and groupName !=''">  and   m.group_name = #{groupName} </if> 			  
+		 </where> 
+    </select> 
+    
+     <!--病人  新增医生病人关系   包括 添加搜索医生 添加分组   还有直接添加分组-->
+     <insert id="addPd" parameterType="com.jyss.mst.entity.PatDoc" 
+        useGeneratedKeys="true" keyProperty="id"> 
+        insert into p_pat_doc values(null,#{dId},#{pId},#{docId},#{groupId},#{groupName},
+                    #{zdId},#{createdAt},null,#{type},#{status},#{docGroupName},null,null,#{isRead})  
+            
+    </insert>
+    
+    <!--病人 编辑好友分组名称  -->
+    <update id="updatePdByPat" parameterType="com.jyss.mst.entity.PatDoc" >
+        update p_pat_doc
+           set group_name = #{newGroupName},last_modify_time = #{lastModifyTime}
+        where status in(2,5) and p_id = #{pId} and group_name = #{groupName}
+    </update>
+    
+     <!--病人  移除医生至其他分组  -->
+    <update id="updateYzByPat" parameterType="com.jyss.mst.entity.PatDoc" >
+        update p_pat_doc
+           set group_name = #{newGroupName},last_modify_time = #{lastModifyTime}
+        where status in(2,5)  and p_id = #{pId} and  doc_id = #{docId}
+    </update>
+    
+     <!--病人  移除当前医生  -->
+    <update id="updateScByPat" parameterType="com.jyss.mst.entity.PatDoc" >
+        update p_pat_doc
+           set status = 0,last_modify_time = #{lastModifyTime}
+        where status in(2,5)  and p_id = #{pId} and  doc_id = #{docId}
+    </update>
+      
+    <!-- 医生端 -->
+    
+      
+   <!--医生  医生 病人好友分组   -->
+    <select id="getDGroup" resultMap="pdResultMap">  
+       select t.* from 
+			(select id,doc_id,doc_group_name from p_pat_doc where doc_group_name is not null and status in(2,5)  
+			union
+			select 0,#{docId},'未分组')t 
+	         <where> 	              
+				  <if test="docId != null and docId !=''">  t.doc_id = #{docId} </if> 			  
+			 </where> 
+			 order by t.doc_group_name
+    </select>
+    
+     <!--医生  医生 病人好友分组 json   -->
+   <select id="getJsonDGroup" resultMap="pdResultMap">  
+        <!--  select distinct(doc_group_name) as  doc_group_name ,doc_id from  p_pat_doc  -->
+        select *,max(created_at) from p_pat_doc 
+	         <where> 
+	              doc_group_name is not null and status in(2,5)             
+				  <if test="docId != null and docId !=''"> and  doc_id = #{docId} </if> 			  
+			 </where> 
+			group by  doc_group_name 
+			 order by max(created_at)  asc
+    </select>
+    
+     <!--医生  获取病人好友json  -->
+    <select id="getJsonDFriend" resultMap="pdResultMap">         
+		select e.* from (
+			select d.doc_id,d.p_id,d.doc_group_name,d.doc_ps,d.yz_info,d.is_read,d.status,p.account,p.uname,ifnull(p.sex,'0') as sex ,ifnull(p.age,'0') as age,p.avatar,p.nick,p.zd_id ,z.d_id,a.uname as duname ,z.zd from p_pat_doc d 
+			  left join p_account_patients p
+			  on d.p_id = p.id
+		      left join p_zd z
+		      on p.zd_id = z.id
+		      left join   p_account_doctors a
+		      on z.d_id = a.id
+			 ) e
+         <where> 
+              e.status in(2,5) 
+			  <if test="docId != null and docId !=''">and  e.doc_id = #{docId} </if> 
+			  <if test="docGroupName != null and docGroupName !=''">and  e.doc_group_name = #{docGroupName} </if> 			  
+		 </where> 
+    </select>
+    
+         <!--医生  获取病人好友json  -->
+    <select id="getJsonDSingleFriend" resultMap="pdResultMap">         
+		select e.* from (
+			select d.doc_id,d.p_id,d.doc_group_name,d.doc_ps,d.yz_info,d.is_read,d.status,p.account,p.uname,ifnull(p.sex,'0') as sex  ,ifnull(p.age,'0') as age ,p.avatar,p.nick,p.zd_id ,z.d_id,a.uname as duname ,z.zd from p_pat_doc d 
+			  left join p_account_patients p
+			  on d.p_id = p.id
+		      left join p_zd z
+		      on p.zd_id = z.id
+		      left join   p_account_doctors a
+		      on z.d_id = a.id
+			 ) e
+         <where> 
+              e.status in(2,5) 
+			  <if test="docId != null and docId !=''">and  e.doc_id = #{docId} </if> 
+			  <if test="pId != null and pId !=''">and  e.p_id = #{pId} </if> 			  
+		 </where> 
+		 limit 1
+    </select>
+    
+    
+    
+
+    <!--医生  获取病人好友  -->
+    <select id="getDFriend" resultMap="pdResultMap">         
+		select v.* from (
+			select d.doc_id,d.p_id,d.doc_group_name,d.doc_ps,d.yz_info,d.is_read,d.status,p.account,p.uname,ifnull(p.sex,'0') as sex ,ifnull(p.age,'0') as age,p.avatar,p.nick,p.zd_id from p_pat_doc d 
+			left join p_account_patients p
+			on d.p_id = p.id
+			 ) v
+         <where> 
+			  <if test="docId != null and docId !=''">v.status in(2,5) and  v.doc_id = #{docId} </if> 			  
+		 </where> 
+    </select>
+    
+    <!--医生  获取病人视频时长  -->
+    <select id="getPVTime" resultMap="pdResultMap">         
+		select v.* from (
+			select d.doc_id,d.p_id,d.doc_group_name,d.doc_ps,d.yz_info,d.is_read,d.status,p.account,p.uname,ifnull(p.sex,'0') as sex ,ifnull(p.age,'0') as age,p.avatar,p.nick,p.zd_id,IFNULL(p.video_time,0) as video_time,IFNULL(p.talk_time,0) as talk_time  from p_pat_doc d 
+			left join p_account_patients p
+			on d.p_id = p.id
+			 ) v
+         <where> 
+              v.status in(2,5) 
+			  <if test="docId != null and docId !=''"> and  v.doc_id = #{docId} </if> 
+			  <if test="videoTime != null and videoTime !=''"> and v.video_Time &lt; #{videoTime} </if> 			  
+		 </where> 
+    </select>
+    
+    <!--医生  获取病人通话时长  -->
+    <select id="getPTTime" resultMap="pdResultMap">         
+		select v.* from (
+			select d.doc_id,d.p_id,d.doc_group_name,d.doc_ps,d.yz_info,d.is_read,d.status,p.account,p.uname,ifnull(p.sex,'0') as sex ,ifnull(p.age,'0') as age,p.avatar,p.nick,p.zd_id,IFNULL(p.video_time,0) as video_time,IFNULL(p.talk_time,0) as talk_time  from p_pat_doc d 
+			left join p_account_patients p
+			on d.p_id = p.id
+			 ) v
+         <where> 
+              v.status in(2,5) 
+			  <if test="docId != null and docId !=''"> and  v.doc_id = #{docId} </if> 
+			  <if test="talkTime != null and talkTime !=''"> and v.talk_Time &lt; #{talkTime} </if> 			  
+		 </where> 
+    </select>
+    
+  
+
+    <!--医生  新增医生病人关系   包括 添加搜索病人   添加分组   还有直接添加分组-->
+     <insert id="addPdByDoc" parameterType="com.jyss.mst.entity.PatDoc" 
+        useGeneratedKeys="true" keyProperty="id"> 
+        insert into p_pat_doc values(null,#{dId},#{pId},#{docId},#{groupId},null,
+                    #{zdId},#{createdAt},null,#{type},#{status},#{docGroupName},#{docPs},#{yzInfo},#{isRead})  
+            
+    </insert>
+    
+   <!--医生  删除 病人分组  若里面有病人 则病人也删除 -->
+   <delete id="delDocGroup" >
+        delete from p_pat_doc 
+        <where> 
+              status in(2,5)  and   doc_id = #{docId} and doc_group_name = #{groupName} 	
+			  <if test="pId != null and pId !=''"> and  p_id = #{pId} </if> 			  
+		 </where>   
+   </delete>
+   
+    
+   <!--医生  删除 病人 -->
+   <delete id="delPatByDoc" >
+        delete from p_pat_doc  
+        where  status in(2,5)  and   doc_id = #{docId} and p_id = #{pId} 	   
+   </delete>
+   
+  
+    <!--医生  病人分组  编辑分组名称  -->
+    <update id="updatePdByDoc" parameterType="com.jyss.mst.entity.PatDoc" >
+        update p_pat_doc
+           set doc_group_name = #{newGroupName},last_modify_time = #{lastModifyTime}
+        where status in(2,5)  and doc_id = #{docId} and doc_group_name = #{groupName}
+    </update>
+    
+    
+    <!--医生   移除病人至其他分组  -->
+    <update id="updateYzByDoc" parameterType="com.jyss.mst.entity.PatDoc" >
+        update p_pat_doc
+           set doc_group_name = #{newGroupName},last_modify_time = #{lastModifyTime}
+        where status in(2,5)  and doc_id = #{dId} and  p_id = #{pId}
+    </update>
+    
+    <!--医生  移除当前医生  -->
+    <update id="updateScByDoc" parameterType="com.jyss.mst.entity.PatDoc" >
+        update p_pat_doc
+           set status = 0,last_modify_time = #{lastModifyTime}
+        where status in(2,5)  and d_id = #{dId} and  doc_id = #{docId}
+    </update>
+    
+    
+    <delete id="deletePd" parameterType="java.util.List">
+        delete from p_pat_doc  where id in 
+	    <foreach collection="ids" item="id" open="(" separator="," close=")">   
+	        #{id}   
+	    </foreach>  
+    </delete>
+    
+     <!--医生  医生 病人分享  -->      
+     <insert id="docAddFx" parameterType="com.jyss.mst.entity.PatDoc" 
+        useGeneratedKeys="true" keyProperty="id"> 
+        insert into p_pat_doc values(null,#{dId},#{pId},#{docId},#{groupId},'我的病人',
+                    #{zdId},#{createdAt},null,#{type},#{status},#{docGroupName},#{docPs},#{yzInfo},#{isRead})  
+            
+    </insert>
+    
+    <!--医生   同意病人 或者拒绝 病人  -->
+    <!--病人   同意医生 或者拒绝医生  -->
+    <update id="upPdRelation" parameterType="com.jyss.mst.entity.PatDoc" >
+        update p_pat_doc
+           set status = #{status},is_read = #{isRead},last_modify_time = #{lastModifyTime}
+        where status = 1 and  doc_id = #{dId} and p_id = #{pId}
+    </update>
+    
+    
+     <!--医生   医生 病人分享   同意2或是拒绝3  -->
+    <update id="upDocFx" parameterType="com.jyss.mst.entity.PatDoc" >
+        update p_pat_doc
+           set status = #{status},is_read = #{isRead},last_modify_time = #{lastModifyTime}
+        where status = 5 and d_id = #{docId} and  doc_id = #{dId} and p_id = #{pId}
+    </update>
+    
+     <!--医生   医生 病人分享  消息已读未读 -->
+    <update id="upDocFxRead" parameterType="com.jyss.mst.entity.PatDoc" >
+        update p_pat_doc
+           set is_read = #{isRead},last_modify_time = #{lastModifyTime}
+        where status = 5 and d_id = #{docId} and  doc_id = #{dId} and p_id = #{pId}
+    </update>
+
+</mapper>

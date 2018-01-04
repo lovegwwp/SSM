@@ -1,0 +1,341 @@
+
+<!--  <?xml version="1.0" encoding="UTF-8" ?>-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jyss.mst.mapper.DoctorsMapper" > 
+
+    <resultMap type="com.jyss.mst.entity.Doctors" id="docResultMap">   
+        <id property="id" column="id"  />
+        <result property="account" column="account"  />
+        <result property="uname" column="uname"  />
+        <result property="sex" column="sex"  />
+        <result property="dw_id" column="dw_id"  />
+        <result property="dw_name" column="dw_name"  />
+        <result property="ks_id" column="ks_id"  />
+        <result property="ks_name" column="ks_name"  />
+        <result property="age" column="age"  />
+        <result property="job" column="job"  />
+        <result property="skills" column="skills"  />
+        <result property="scores" column="scores"  />
+        <result property="comments" column="comments"  />
+        <result property="lables" column="lables"  />
+        <result property="lableNames" column="lable_names"  />
+        <result property="emails" column="emails"  />
+        <result property="abstracts" column="abstracts"  />
+        <result property="salt" column="salt"  />
+        <result property="password" column="password"  />
+        <result property="uuid" column="uuid"  />
+        <result property="token" column="token"  />
+        <result property="avatar" column="avatar"  />
+        <result property="nick" column="nick"  />
+        <result property="province_id" column="province_id"  />
+        <result property="province" column="province"  />
+        <result property="city_id" column="city_id"  />
+        <result property="city" column="city"  />
+        <result property="area_id" column="area_id"  />
+        <result property="area" column="area"  />
+        <result property="created_at" column="created_at"  />
+        <result property="last_modify_time" column="last_modify_time"  />
+        <result property="last_login_time" column="last_login_time"  />
+        <result property="last_locate_time" column="last_locate_time"  />
+        <result property="cjsj" column="cjsj"  />
+        <result property="xgsj" column="xgsj"  />
+        <result property="type" column="type"  />
+        <result property="status" column="status"  />
+        <result property="totalFw" column="total_fw"  />
+        <result property="nowFw" column="now_fw"  />
+        <result property="czr" column="czr"  />
+    </resultMap> 
+    
+    <resultMap type="com.jyss.mst.entity.TjEntity" id="tjResultMap">   
+        <result property="province" column="province" /> 
+        <result property="city" column="city" /> 
+        <result property="dw" column="dw" />       
+        <result property="num" column="num" />      
+    </resultMap> 
+    
+    <!--医生端   查询 搜索医生-->  
+    
+    <!--  select id,account,uname,sex,age,avatar,nick,dw_id,dw_name,ks_id,ks_name,job,lable_names 
+         from  p_account_doctors  -->
+     <select id="getDocByDoc" resultMap="docResultMap">  
+       <!-- select *
+         from  p_account_doctors  -->
+        <!--  select m.* from(
+	          select a.*,ifnull(t1.total_fw,'') as total_fw,ifnull(t2.now_fw,'') as now_fw  from p_account_doctors a
+			left join  
+				(select count(*) total_fw ,p.doc_id from p_pat_doc p where p.doc_id =#{id} and p.status in('0','2','4','5')) t1
+			on a.id = t1.doc_id
+			left join  
+				(select count(*) as now_fw,t.d_id from (
+						select s.id,s.type,s.d_id,s.p_id,s.status,max(s.last_modify_time) as last_modify_time from p_xlsp s  where s.status =1 and s.d_id =#{id}
+						group by s.p_id )t
+						where round(TIMESTAMPDIFF(SECOND, t.last_modify_time,now())/3600/24 ) &gt; #{sjxz} ) t2
+			on a.id = t2.d_id ) m -->
+			select * from p_account_doctors m
+         <where> 
+              m.status = 1
+              <if test="id != null and id !='' and id !=0 "> and  m.id  = #{id} </if> 
+              <if test="uname != null and uname !=''"> and  m.uname  LIKE CONCAT('%',#{uname},'%') </if> 
+			  <if test="id != null and id !=''">and  m.id  LIKE CONCAT('%',#{id},'%') </if> 
+			  <if test="dw_name != null and dw_name !=''"> and  m.dw_id= #{dw_name} </if> 
+			  <if test="ks_name != null and ks_name !=''"> and  m.ks_id = #{ks_name} </if> 
+			  <if test="job != null and job !=''"> and  m.job LIKE CONCAT('%',#{job},'%') </if> 
+			  <if test="lableNames != null and lableNames !=''">and  m.lable_names LIKE CONCAT('%',#{lableNames},'%') </if> 
+		 </where> 
+    </select>  
+    
+    <!-- 修改前医生权限 --> 
+      <update id="upDocQxByDoc"  >
+        update p_account_doctors
+           set  type = #{type},last_modify_time = #{xgsj}, czr = #{dId}
+        where id=#{docId}
+    </update>
+    
+     <!-- 修改前医生头像 --> 
+      <update id="upDocAvatar"  >
+        update p_account_doctors
+           set  avatar = #{avatar},last_login_time = #{xgsj}
+        where id=#{dId}
+    </update>
+    
+    
+    <!-- 修改登陆时间 --> 
+      <update id="upLoginTime"  >
+        update p_account_doctors
+           set  last_modify_time = #{dlsj}
+        where id=#{dId}
+    </update>
+    
+    
+     <!-- 删除医生  需判断是否已有指导病人 --> 
+    <delete id="delDocByDoc" >
+        delete from p_account_doctors where id = #{docId}   
+    </delete>
+    <!-- 新增医生 医生增加医生 --> 
+	 <insert id="addDocByDoc" parameterType="com.jyss.mst.entity.Doctors" 
+	        useGeneratedKeys="true" keyProperty="id">
+	        insert into  p_account_doctors (account,uname,password,sex,dw_id,dw_name,ks_id,ks_name,job,salt,uuid,avatar,token,nick,province_id,province,city_id,city,area_id,area,created_at,type,status,scores,czr)
+               select #{account},#{uname},#{password},0,dw_id,dw_name,ks_id,ks_name,'主治医生' as job,#{salt},#{uuid},avatar,#{token},#{nick},province_id,province,city_id,city,area_id,area,#{created_at},0,1,5,#{id}
+                  from  p_account_doctors
+               where  status =1 and type =1 and  id =#{id} 
+	            
+	 </insert>
+	 
+	  <!--医生  查询医生所增加的医生 --> 
+	 <select id="getAddDocs" resultMap="docResultMap" >  
+        select id,account,uname,ifnull(sex,'0') as sex ,avatar from p_account_doctors
+		where czr= #{dId}
+    </select> 
+ 
+    <!-- 病人端接口 --> 
+     
+     <!-- 病人端  医生详情页-->  
+    <select id="getDocInfo" resultMap="docResultMap" >  
+        select a.*,ifnull(t1.total_fw,'0') as total_fw,ifnull(t2.now_fw,'0') as now_fw  from p_account_doctors a
+		left join  
+			(select count(*) total_fw ,p.doc_id from p_pat_doc p where p.doc_id =#{id} and p.status in('0','2','4','5')) t1
+		on a.id = t1.doc_id
+		left join  
+			(select count(*) as now_fw,t.d_id from (
+					select s.id,s.type,s.d_id,s.p_id,s.status,max(s.last_modify_time) as last_modify_time from p_xlsp s  where s.status =1 and s.d_id =#{id}
+					group by s.p_id )t
+					where round(TIMESTAMPDIFF(SECOND, t.last_modify_time,now())/3600/24 ) &gt; #{sjxz} ) t2
+		on a.id = t2.d_id 
+		where a.id=#{id};
+    </select> 
+    
+    
+    
+    <!-- 后台接口 -->  
+     <!-- 统计==医生==区域 -->
+     <select id="getDocAddrTj" resultMap="tjResultMap" parameterType ="String">  
+	    select t.* from (
+			    select province,city,count(id) as num  from p_account_doctors  where  province is not null and city is not null 
+					group by province,city )t
+         <where> 
+              1=1
+			  <if test="province != null and province !='' and province !='AA' "> and t.province = #{province} </if> 
+			  <if test="city != null and city !='' and city !='AA'"> and t.city  = #{city} </if> 
+		 </where> 
+		 order by t.province, t.city
+    </select> 
+    
+    <!-- 统计==在线==医生区域 -->
+     <select id="getDocOnTj" resultMap="tjResultMap" parameterType ="String">  
+	    select t.* from (
+			    select m.province,m.city,count(m.id) as num  
+			          from (select * from p_account_doctors where province is not null and city is not null and TIMESTAMPDIFF(Minute,last_login_time,now()) &lt; #{dlsjxz}*60) m
+                 group by m.province,m.city )t
+         <where> 
+              1=1
+			  <if test="province != null and province !=''  and province !='AA' "> and t.province = #{province} </if> 
+			  <if test="city != null and city !=''  and city !='AA' "> and t.city  = #{city} </if> 
+		 </where> 
+		 order by t.province, t.city
+    </select> 
+    
+    
+    <!-- 查询所有医生-->  
+    <select id="getDocs" resultMap="docResultMap">  
+        select d.*,DATE_FORMAT(d.created_at, '%Y-%m-%d %H:%i:%s' ) cjsj,DATE_FORMAT(d.last_modify_time, '%Y-%m-%d %H:%i:%s' ) xgsj 
+             from p_account_doctors d
+             order by d.last_modify_time  desc
+
+    </select> 
+    
+    <!-- 查询医生根据ID-->  
+    <select id="getDocsById" resultType="com.jyss.mst.entity.Doctors"  parameterType="int">  
+        select  d.id, d.account,d.uname,d.nick,ifnull(d.abstracts,'') as abstracts ,ifnull(d.skills,'') as skills ,d.scores,d.type,d.avatar,ifnull(d.sex,'0') as sex,ifnull(d.age,'0') as age,d.job,ifnull(d.dw_name,'') as dw_name, ifnull(d.ks_name,'') as ks_name ,ifnull(d.lable_names,'医生') as lableNames ,emails from p_account_doctors d where  status = 1 and id = #{id}
+    </select> 
+    
+    <!-- 查询医生根据ACCOUNT -->  
+    <select id="getDocsByAccount" resultType="com.jyss.mst.entity.Doctors"  parameterType="int">  
+        select * from p_account_doctors 
+        <where> 
+              status = 1
+			  <if test="account != null and account !=''">  and account = #{account} </if> 			 
+		</where> 
+		limit 0,1
+    </select> 
+    
+        <!-- 查询医生根据Email -->  
+    <select id="getDocsByEmail" resultMap="docResultMap"  parameterType="String">  
+        select * from p_account_doctors 
+        <where> 
+              status = 1
+			  <if test="emails != null and emails !=''">  and emails = #{emails} </if> 			 
+		</where> 
+		limit 0,1
+    </select> 
+    
+    
+     <!-- 病人搜索医生 -->  
+    <select id="getDocsByPat" resultMap="docResultMap"  parameterType="String">  
+        select d.*,DATE_FORMAT(d.created_at, '%Y-%m-%d %H:%i:%s' ) cjsj,DATE_FORMAT(d.last_modify_time, '%Y-%m-%d %H:%i:%s' ) xgsj
+        	from p_account_doctors d
+        <where> 
+			  <if test="searchBy != null and searchBy !=''">  d.status = 1 and  
+			     d.uname LIKE CONCAT('%',#{searchBy},'%') or
+			     d.dw_name LIKE CONCAT('%',#{searchBy},'%') or
+			     d.scores LIKE CONCAT('%',#{searchBy},'%') or
+			     d.lable_names LIKE CONCAT('%',#{searchBy},'%') 
+			  </if> 	 
+		</where> 
+    </select> 
+    
+    <!-- 查询医生根据ACCOUNT uname -->  
+    <select id="getDocsByAccountAndName" resultMap="docResultMap">  
+        select d.*,DATE_FORMAT(d.created_at, '%Y-%m-%d %H:%i:%s' ) cjsj,DATE_FORMAT(d.last_modify_time, '%Y-%m-%d %H:%i:%s' ) xgsj 
+             from p_account_doctors d
+          <where> 
+              <!--<if test="account != null and account !=''"> account LIKE "%"#{account}"%" </if> 
+			  <if test="uname != null and uname !=''"> AND uname  LIKE "%"#{uname}"%" </if> --> 
+			  <if test="account != null and account !=''">   d.account LIKE CONCAT('%',#{account},'%') </if> 
+			  <if test="uname != null and uname !=''"> AND d.uname  LIKE CONCAT('%',#{uname},'%') </if> 
+			  <if test="type != null and type !=''"> AND d.type =#{type} </if> 
+		  </where> 
+		   order by d.last_modify_time  desc
+
+    </select> 
+    
+    <!-- 权限判断  查询医生根据dw_id -->  
+    <select id="getQxPd" resultType = "int" parameterType="int">  
+        select count(*) from p_account_doctors 
+          <where>            
+			  <if test="dw_id != null and dw_id !=''"> dw_id = #{dw_id} </if> 
+			  <if test="ks_id != null and ks_id !=''"> and ks_id = #{ks_id} </if> 
+		  </where> 	   
+    </select> 
+    
+    <!-- 判断手机号唯一 -->  
+    <select id="accountPd" resultType = "int" parameterType="String">  
+        select count(*) from p_account_doctors 
+          <where>            
+			  <if test="account != null and account !=''"> account = #{account} </if> 
+		  </where> 	    
+    </select> 
+    
+      <!-- 判断手机号唯一 -->  
+    <select id="accountPdInfo" resultMap="docResultMap" parameterType="String">  
+        select * from p_account_doctors 
+          <where>            
+			  <if test="account != null and account !=''"> account = #{account} </if> 
+		  </where> 	    
+    </select> 
+    
+    
+
+    <!--执行增加操作的SQL语句。id和parameterType分别与DoctorsMapper接口中的addDoc方法的名字和参数类型一致。
+    useGeneratedKeys设置为"true"表明要MyBatis获取由数据库自动生成的主键；keyProperty="id"指定把获取到的主键值注入到User的id属性--> 
+    <insert id="addDoc" parameterType="com.jyss.mst.entity.Doctors" 
+        useGeneratedKeys="true" keyProperty="id"> 
+        insert into p_account_doctors values(null,#{account},#{uname},#{sex},#{dw_id},#{dw_name},#{ks_id},
+       				 #{ks_name},#{age},#{job},#{skills},#{abstracts},#{salt},#{password},#{uuid},#{token},
+       				 #{avatar},#{nick},#{province_id},#{province},#{city_id},#{city},#{area_id},#{area},
+       				 #{created_at},#{last_modify_time},#{last_login_time},#{last_locate_time},#{type},
+       				 #{status},#{scores},#{lables},#{comments},#{emails},#{lableNames},#{czr})  
+            
+    </insert>
+    
+    <update id="updateDoc" parameterType="com.jyss.mst.entity.Doctors" >
+        update p_account_doctors
+           set  last_modify_time = #{last_modify_time}
+            <if test="account != null and account !=''">, account = #{account} </if>
+            <if test="uname != null and uname !=''">, uname = #{uname} </if> 
+            <if test="sex != null and sex !=''"> ,sex = #{sex} </if>
+            <if test="dw_id != null and dw_id !=''"> ,dw_id = #{dw_id} </if>
+            <if test="dw_name != null and dw_name !=''"> ,dw_name = #{dw_name} </if>
+            <if test="ks_id != null and ks_id !=''"> ,ks_id = #{ks_id} </if>
+            <if test="ks_name != null and ks_name !=''"> ,ks_name = #{ks_name} </if>
+            <if test="age != null and age !=''"> ,age = #{age} </if> 
+            <if test="job != null and job !=''"> ,job = #{job} </if>
+            <if test="skills != null and skills !=''"> ,skills = #{skills} </if>
+            <if test="abstracts != null and abstracts !=''"> ,abstracts = #{abstracts} </if>   
+            <if test="nick != null and nick !=''"> ,nick = #{nick} </if>
+            <if test="lables != null and lables !=''"> ,lables = #{lables} </if>
+            <if test="lableNames != null and lableNames !=''"> ,lable_names = #{lableNames} </if>
+            <if test="emails != null and emails !=''"> ,emails = #{emails} </if>
+            <if test="province_id != null and province_id !='' and province_id !=0 "> ,province_id = #{province_id} </if>
+            <if test="province != null and province !=''"> ,province = #{province} </if>
+            <if test="city_id != null and city_id !='' and city_id !=0 "> ,city_id = #{city_id} </if>
+            <if test="city != null and city !=''"> ,city = #{city} </if>
+            <if test="area_id != null and area_id !='' and area_id !=0 "> ,area_id = #{area_id} </if>
+            <if test="area != null and area !=''"> ,area = #{area} </if>         
+          <!--   uname = #{uname},sex = #{sex},dw_id = #{dw_id},dw_name = #{dw_name},
+                ks_id = #{ks_id},ks_name = #{ks_name},age = #{age},job = #{job},skills = #{skills},
+                abstracts = #{abstracts},nick = #{nick},last_modify_time = #{last_modify_time},
+                lables = #{lables},lable_names = #{lableNames},emails = #{emails} -->
+        where id=#{id}
+    </update>
+    
+    <update id="upPwd" parameterType="String" >
+        update p_account_doctors  set password = #{pwd},salt = #{salt}   where id=#{id}
+    </update>
+    
+    <delete id="deleteDoc" parameterType="java.util.List">
+        delete from p_account_doctors where id in 
+	    <foreach collection="ids" item="id" open="(" separator="," close=")">   
+	        #{id}   
+	    </foreach>  
+    </delete>
+    
+    <update id="jyDoc" parameterType="java.util.List">
+        update p_account_doctors d 
+          set d.status= (case  when d.status=0 then 1 when d.status=1 then 0 end) 
+          where d.id in
+	    <foreach collection="ids" item="id" open="(" separator="," close=")">   
+	        #{id}   
+	    </foreach>  
+    </update>
+    
+    <update id="qxDoc" parameterType="java.util.List">
+        update p_account_doctors d 
+          set d.type= (case  when d.type=0 then 1 when d.type=1 then 0 end) 
+          where d.id in
+	    <foreach collection="ids" item="id" open="(" separator="," close=")">   
+	        #{id}   
+	    </foreach>  
+    </update>
+</mapper>

@@ -1,0 +1,72 @@
+
+<!--  <?xml version="1.0" encoding="UTF-8" ?>-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jyss.mst.mapper.XtclMapper" > 
+
+    <resultMap type="com.jyss.mst.entity.Xtcl" id="clResultMap">   
+        <id property="id" column="id"  />
+        <result property="bz_type" column="bz_type"  />
+        <result property="bz_id" column="bz_id"  />
+        <result property="bz_value" column="bz_value"  />
+        <result property="pid" column="pid"  />
+        <result property="status" column="status"  />
+        <result property="ps" column="ps"  />
+
+    </resultMap>   
+     
+    <!-- 查询对应常量-->  
+    <select id="getCls" resultMap="clResultMap" >  
+        select * from p_xt_cl  order by id,bz_type ,bz_id      
+    </select> 
+    
+    <select id="getClsBy" resultMap="clResultMap">  
+        select * from p_xt_cl 
+         <where> 
+			  <if test="bz_type != null and bz_type !=''"> bz_type  LIKE CONCAT('%',#{bz_type},'%') </if> 
+			  <if test="bz_value != null and bz_value !=''"> AND  bz_value LIKE CONCAT('%',#{bz_value},'%')  </if> 
+			  <if test="ps != null and ps !=''"> AND  ps LIKE CONCAT('%',#{ps},'%')  </if> 
+		 </where> 
+		 order by id,bz_type ,bz_id
+    </select> 
+    
+     <select id="getClsValue" resultType="com.jyss.mst.entity.Xtcl">  
+        select * from p_xt_cl 
+         <where> 
+              1=1
+			  <if test="bz_type != null and bz_type !=''">and bz_type  LIKE CONCAT('%',#{bz_type},'%') </if> 
+			  <if test="bz_id != null and bz_id !=''"> AND  bz_id = #{bz_id} </if> 
+		 </where> 
+		limit 0,1
+    </select> 
+    
+    <select id="getClsCombox" resultMap="clResultMap">  
+        select * from p_xt_cl 
+         <where> 
+			  <if test="bz_type != null and bz_type !=''"> bz_type  LIKE CONCAT('%',#{bz_type},'%') </if> 
+			  <if test="pid != null and pid !=''"> AND  pid = #{pid}  </if> 
+		 </where> 
+		  order by bz_id 
+    </select> 
+    
+     <insert id="addCl" parameterType="com.jyss.mst.entity.Xtcl" 
+        useGeneratedKeys="true" keyProperty="id"> 
+        insert into p_xt_cl values(null,#{bz_type},#{bz_id},#{bz_value},#{pid},#{status},#{ps})  
+            
+    </insert>
+    
+    <update id="updateCl" parameterType="com.jyss.mst.entity.Xtcl" >
+        update p_xt_cl
+           set bz_type = #{bz_type},ps = #{ps},bz_id = #{bz_id},bz_value = #{bz_value},pid = #{pid},status = #{status}
+        where id=#{id}
+    </update>
+    
+    <delete id="deleteCl" parameterType="java.util.List">
+        delete from p_xt_cl where id in 
+	    <foreach collection="ids" item="id" open="(" separator="," close=")">   
+	        #{id}   
+	    </foreach>  
+    </delete>
+
+</mapper>

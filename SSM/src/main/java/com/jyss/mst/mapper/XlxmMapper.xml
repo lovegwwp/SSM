@@ -1,0 +1,195 @@
+
+<!--  <?xml version="1.0" encoding="UTF-8" ?>-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jyss.mst.mapper.XlxmMapper" > 
+
+    <resultMap type="com.jyss.mst.entity.Xlxm" id="xmResultMap">   
+        <id property="id" column="id"  />
+        <result property="titles" column="titles"  />
+        <result property="vedio" column="vedio"  />
+        <result property="byteSize" column="byte_size"  />  
+        <result property="type" column="type"  />
+        <result property="itemid" column="itemid"  />
+        <result property="vedioType" column="vedio_type"  />
+        <result property="createdAt" column="created_at"  />
+        <result property="lastModifyTime" column="last_modify_time"  />
+        <result property="cjsj" column="cjsj"  />
+        <result property="xgsj" column="xgsj"  />
+
+    </resultMap> 
+    
+      <resultMap type="com.jyss.mst.entity.PcTest" id="pcResultMap">   
+        <id property="id" column="id"  />
+        <result property="titles" column="titles"  />
+        <result property="vedio" column="vedio"  />
+        <result property="byteSize" column="byte_size"  />  
+        <result property="type" column="type"  />
+        <result property="itemid" column="itemid"  />
+        <result property="vedioType" column="vedio_type"  />
+        <result property="createdAt" column="created_at"  />
+        <result property="lastModifyTime" column="last_modify_time"  />
+        <result property="cjsj" column="cjsj"  />
+        <result property="xgsj" column="xgsj"  />
+
+    </resultMap> 
+    <!-- 医生端-->  
+    <!-- 查询对应训练名称-->  
+    <select id="getTitles" resultMap="xmResultMap" >  
+       select id,titles,type,count(distinct(titles)) from p_xlxm
+         <where> 
+			  <if test="type != null and type !=''"> type = #{type}</if> 			  
+		 </where> 
+		  group by titles
+    </select> 
+    
+    
+    <!-- 查询对应训练名称-->  
+    <select id="getType" resultMap="xmResultMap" >  
+       select distinct(type) as type from p_xlxm  
+        order by  type   
+    </select> 
+    
+    
+   <!-- 查询对应训练名称和路径-->  
+    <select id="getAllSpSrc" resultMap="xmResultMap" >  
+       select *  from p_xlxm  
+        <where> 
+			  <if test="type != null and type !=''"> type = #{type}</if> 			  
+		 </where> 
+        order by  type ,titles, vedio_type 
+    </select> 
+    
+    
+    
+    
+    
+    <!-- 查询评测-->  
+    <select id="getPcType" resultMap="xmResultMap" >  
+       select distinct(type) as type from p_pcxm  
+       order by  type
+    </select> 
+    
+     <!-- 查询评测-->  
+    <select id="getPcXms" resultMap="xmResultMap" >  
+       select * from p_pcxm  
+       <where> 
+			  <if test="type != null and type !=''"> type = #{type}</if> 			  
+		</where>    
+    </select> 
+    
+
+    <!-- 根据ID查询对应训练名称-->  
+    <select id="getTitleById" resultType="String" >  
+       select titles from p_xlxm 
+         <where> 
+			  <if test="id != null and id !=''"> id = #{id}</if> 			  
+		 </where> 
+    </select> 
+    
+     <!-- 根据ID查询对应评测项目名称-->  
+    <select id="getPcTitleById" resultType="String" >  
+       select titles from p_pcxm 
+         <where> 
+			  <if test="id != null and id !=''"> id = #{id}</if> 			  
+		 </where> 
+    </select> 
+    
+       
+    
+     <!-- 后端-->   
+    <!-- 查询对应常量-->  
+    <select id="getXm" resultMap="xmResultMap" >  
+        select x.*,DATE_FORMAT(x.created_at, '%Y-%m-%d %H:%i:%s' ) cjsj,DATE_FORMAT(x.last_modify_time, '%Y-%m-%d %H:%i:%s' ) xgsj
+        	from p_xlxm x      
+    </select> 
+    
+    <select id="getXmBy" resultMap="xmResultMap">  
+         select x.*,DATE_FORMAT(x.created_at, '%Y-%m-%d %H:%i:%s' ) cjsj,DATE_FORMAT(x.last_modify_time, '%Y-%m-%d %H:%i:%s' ) xgsj
+        	from p_xlxm x  
+         <where> 
+			  <if test="titles != null and titles !=''"> x.titles  LIKE CONCAT('%',#{titles},'%') </if> 			  
+		 </where> 
+    </select> 
+
+     <insert id="addXm" parameterType="com.jyss.mst.entity.Xlxm" 
+        useGeneratedKeys="true" keyProperty="id"> 
+        insert into p_xlxm values(null,#{titles},#{vedio},#{type},#{createdAt},null,#{byteSize},#{vedioType},#{itemid})  
+            
+    </insert>
+    
+    <update id="updateXm" parameterType="com.jyss.mst.entity.Xlxm" >
+        update p_xlxm
+           set titles = #{titles},vedio = #{vedio},type = #{type},itemid = #{itemid},last_modify_time = #{lastModifyTime},byte_size = #{byteSize},vedio_type = #{vedioType}
+        where id=#{id}
+    </update>
+    
+    <delete id="deleteXm" parameterType="java.util.List">
+        delete from p_xlxm  where id in 
+	    <foreach collection="ids" item="id" open="(" separator="," close=")">   
+	        #{id}   
+	    </foreach>  
+    </delete>
+    
+    
+    <!-- 评测 -->
+    <select id="getPcBy" resultMap="pcResultMap">  
+         select x.*,DATE_FORMAT(x.created_at, '%Y-%m-%d %H:%i:%s' ) cjsj,DATE_FORMAT(x.last_modify_time, '%Y-%m-%d %H:%i:%s' ) xgsj
+        	from p_pc_test x  
+         <where> 
+			  <if test="titles != null and titles !=''"> x.titles  LIKE CONCAT('%',#{titles},'%') </if> 	
+			  <if test="type != null and type !=''">and  x.type =#{type} </if> 				  
+		 </where> 
+		 order by last_modify_time desc
+    </select> 
+    
+    <insert id="addPc" parameterType="com.jyss.mst.entity.PcTest" 
+        useGeneratedKeys="true" keyProperty="id"> 
+        insert into p_pc_test values(null,#{titles},#{vedio},#{byteSize},#{type},#{itemid},#{vedioType},#{createdAt},null)  
+            
+    </insert>
+    
+    <update id="updatePc" parameterType="com.jyss.mst.entity.PcTest" >
+        update p_pc_test
+           set titles = #{titles},vedio = #{vedio},last_modify_time =now()
+        where id=#{id}
+    </update>
+    
+    <delete id="deletePc" parameterType="java.util.List">
+        delete from p_pc_test  where id in 
+	    <foreach collection="ids" item="id" open="(" separator="," close=")">   
+	        #{id}   
+	    </foreach>  
+    </delete>
+    
+    <!-- 第三方训练 -->
+     <select id="getTsetBy" resultMap="pcResultMap">  
+         select x.*,DATE_FORMAT(x.created_at, '%Y-%m-%d %H:%i:%s' ) cjsj,DATE_FORMAT(x.last_modify_time, '%Y-%m-%d %H:%i:%s' ) xgsj
+        	from p_pcxm x  
+         <where> 
+			  <if test="titles != null and titles !=''"> x.titles  LIKE CONCAT('%',#{titles},'%') </if> 			  
+		 </where> 
+		 order by last_modify_time desc
+    </select> 
+    
+      <insert id="addTset" parameterType="com.jyss.mst.entity.PcTest" 
+        useGeneratedKeys="true" keyProperty="id"> 
+        insert into p_pcxm values(null,#{titles},#{vedio},#{byteSize},#{type},#{itemid},#{vedioType},#{createdAt},null)  
+            
+    </insert>
+    
+    <update id="updateTset" parameterType="com.jyss.mst.entity.PcTest" >
+        update p_pcxm
+           set titles = #{titles},vedio = #{vedio},last_modify_time =now()
+        where id=#{id}
+    </update>
+    
+    <delete id="deleteTset" parameterType="java.util.List">
+        delete from p_pcxm  where id in 
+	    <foreach collection="ids" item="id" open="(" separator="," close=")">   
+	        #{id}   
+	    </foreach>  
+    </delete>
+
+</mapper>

@@ -1,0 +1,12 @@
+.datagrid-body{
+	    overflow: scroll;
+}
+.panel-fit, .panel-fit body{
+	overflow: auto;
+}
+.datagrid .datagrid-pager{
+	bottom:17px;
+}
+.easyui-window{
+	overflow: scroll;
+}

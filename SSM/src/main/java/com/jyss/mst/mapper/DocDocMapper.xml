@@ -1,0 +1,174 @@
+
+<!--  <?xml version="1.0" encoding="UTF-8" ?>-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jyss.mst.mapper.DocDocMapper" > 
+
+    <resultMap type="com.jyss.mst.entity.DocDoc" id="docResultMap">   
+        <id property="id" column="id"  />
+        <result property="dId" column="d_id"  />
+        <result property="docId" column="doc_id"  />  
+        <result property="groupId" column="group_id"  />
+        <result property="zdId" column="zd_id"  />
+        <result property="status" column="status"  />  
+        <result property="type" column="type"  />
+        <result property="createdAt" column="created_at"  />
+        <result property="lastModifyTime" column="last_modify_time"  />
+        <result property="docGroupName" column="doc_group_name"  />
+        <result property="docPs" column="doc_ps"  />
+        <result property="yzInfo" column="yz_info"  />
+        <result property="isRead" column="is_read"  />
+        <!-- 视图字段 -->
+        <result property="account" column="account"  />
+        <result property="uname" column="uname"  />
+        <result property="avatar" column="avatar"  />
+        <result property="sex" column="sex"  /> 
+        <result property="dwName" column="dw_name"  />
+        <result property="ksName" column="ks_name"  />
+        <result property="age" column="age"  />
+        <result property="job" column="job"  />
+        <result property="lableNames" column="lable_names"  />
+        <result property="skills" column="skills"  />
+        <result property="abstracts" column="abstracts"  />
+        <result property="scores" column="scores"  />
+    </resultMap>  
+     
+     
+    
+    <!-- 医生端 -->
+ 
+   <!--医生  医生医生好友分组   -->
+    <select id="getDGroupByDoc" resultMap="docResultMap">  
+       select t.* from 
+			(select id,d_id,doc_group_name from p_doc_doc where doc_group_name is not null and status = 2  
+			union
+			select 0,#{dId},'未分组')t 
+	         <where> 	              
+				  <if test="dId != null and dId !=''">  t.d_id = #{dId} </if> 			  
+			 </where> 
+			 order by t.doc_group_name
+    </select>
+    
+    <!--医生  获取 医生好友  -->
+    <select id="getDFriendByDoc" resultMap="docResultMap">         
+		 select v.* from (
+			select t.*,d.account,d.uname,d.avatar,ifnull(d.sex,'0') as sex,ifnull(d.age,'0') as age,d.job,d.dw_name,ks_name,ifnull(lable_names,'医生') as lable_names from p_doc_doc  t 
+			left join p_account_doctors d on t.d_id = d.id order by t.doc_group_name,t.doc_id) v
+         <where> 
+			  <if test="dId != null and dId !=''">v.status = 2 and  v.d_id = #{dId} </if> 			  
+		 </where>  
+    </select>
+    
+    <!--医生  医生 医生好友分组 json   -->
+   <select id="getJsonDocGroup" resultMap="docResultMap">  
+         <!-- select distinct(doc_group_name) as  doc_group_name ,d_id from  p_doc_doc  -->
+         select *,max(created_at) from p_doc_doc  
+	         <where> 
+	              doc_group_name is not null and status =2            
+				  <if test="dId != null and dId !=''"> and  d_id = #{dId} </if> 			  
+			 </where> 
+			 group by  doc_group_name 
+			 order by max(created_at)  asc
+    </select>
+  
+    
+     <!--医生  获取医生好友json  -->
+    <select id="getJsonDocFriend" resultMap="docResultMap">         
+		select v.* from (
+			select t.id,t.d_id,t.doc_id,t.doc_group_name,ifnull(t.doc_ps,'') as doc_ps ,ifnull(t.yz_info,'') as yz_info ,t.created_at,t.last_modify_time,t.zd_id,t.status,t.is_read,d.account,d.uname,d.nick,d.abstracts,d.skills,d.scores,d.type,d.avatar,ifnull(d.sex,'0') as sex ,ifnull(d.age,'0') as age,d.job,d.dw_name,ks_name,ifnull(lable_names,'医生') as lable_names  from p_doc_doc  t 
+			left join p_account_doctors d on t.doc_id = d.id order by t.doc_group_name,t.doc_id) v
+         <where> 
+              v.status = 2
+			  <if test="dId != null and dId !=''">and  v.d_id = #{dId} </if> 
+			  <if test="docGroupName != null and docGroupName !=''">and  v.doc_group_name = #{docGroupName} </if> 			  
+		 </where> 
+    </select>
+    
+    
+    
+
+    <!--医生  新增医生病人关系   包括 添加搜索病人   添加分组   还有直接添加分组-->
+     <insert id="addDdByDoc" parameterType="com.jyss.mst.entity.DocDoc" 
+        useGeneratedKeys="true" keyProperty="id"> 
+        insert into p_doc_doc values(null,#{dId},#{docId},#{groupId},#{docGroupName},#{docPs},#{yzInfo},
+                    #{zdId},#{createdAt},null,#{type},#{status},#{isRead})  
+            
+    </insert>
+    
+  <!--医生  添加医生好友  防止重复添加 先删除之前添加 -->
+   <delete id="delRepeat" >
+        delete from p_doc_doc  
+        where  status =1 and   d_id = #{dId} and doc_id = #{docId}
+   </delete>
+    
+   <!--医生  删除  医生分组  若里面有医生  则医生默认移动到我的第一个分组 -->
+   <delete id="delDocGroup" >
+        delete from p_doc_doc  
+        <where> 
+              status =2  
+              <if test="dId != null and dId !=''"> and d_id = #{dId} </if> 
+			  <if test="docId != null and docId !=''"> and doc_id = #{docId} </if> 
+			  <if test="docGroupName != null and docGroupName !=''"> and  doc_group_name = #{docGroupName} </if> 			  
+		</where> 
+   </delete>
+   
+   <!--医生  删除  医生分组  若里面有医生  则医生默认移动到我的第一个分组 -->
+   <update id="upGroupByDel"  >
+        update p_doc_doc
+           set doc_group_name = #{newGroupName}
+        where status = 2 and d_id = #{dId} and doc_group_name = #{docGroupName}
+    </update>
+  
+     <!--医生   移除医生至其他分组  -->
+    <update id="upDocYzByDoc" parameterType="com.jyss.mst.entity.DocDoc" >
+        update p_doc_doc
+           set doc_group_name = #{newGroupName},last_modify_time = #{lastModifyTime}
+        where status =2  and doc_id = #{docId}  and d_id = #{dId}
+    </update>
+    
+    <!--医生  医生分组  编辑分组名称  -->
+    <update id="updateDdByDoc" parameterType="com.jyss.mst.entity.DocDoc" >
+        update p_doc_doc
+           set doc_group_name = #{newGroupName},last_modify_time = #{lastModifyTime}
+        where status = 2 and d_id = #{dId} and doc_group_name = #{docGroupName}
+    </update>
+    
+      <!-- 医生  医生 同意 医生2 好友  拒绝好友3 -->
+    <insert id="docAgreeFriend"  parameterType="com.jyss.mst.entity.DocDoc"
+        useGeneratedKeys="true" keyProperty="id"> 
+        insert into p_doc_doc(d_id,doc_id,group_id,doc_group_name,created_at,type,status,is_read)
+      	    select doc_id,d_id,group_id,'我的好友' as doc_group_name,#{createdAt},#{type},#{status},1  from p_doc_doc 
+       		   where d_id = #{docId} and doc_id = #{dId} and status=1
+    </insert>
+    
+     <!--医生  医生同意或拒绝好友修改状态    -->
+    <update id="updateDdStatus"   parameterType="com.jyss.mst.entity.DocDoc" >
+        update p_doc_doc
+           set status = #{status},last_modify_time = #{lastModifyTime}
+        where  status =1 and   d_id = #{dId} and doc_id = #{docId}
+    </update>
+    
+    <!--医生  医生 判断消息是否已读未读    -->
+    <update id="upIsRead"   parameterType="com.jyss.mst.entity.DocDoc" >
+        update p_doc_doc
+           set is_read = #{isRead} ,last_modify_time = #{lastModifyTime}
+        where  status in(2,3) and   d_id = #{dId} and doc_id = #{docId}
+    </update>
+    
+     <!--医生    防止重复拒绝   先删除之前决绝 -->
+   <delete id="delRefuse" >
+        delete from p_doc_doc  
+        where  status = 3 and   d_id = #{dId} and doc_id = #{docId}
+   </delete>
+   
+   
+       <!--医生  添加好友之前确认是否有该好友  -->
+    <select id="isExistDoc" resultType="int">         
+		 select count(*) docnum  from p_doc_doc
+		 where  status = 2 and   d_id = #{dId} and doc_id = #{docId}
+    </select>
+    
+
+
+</mapper>
