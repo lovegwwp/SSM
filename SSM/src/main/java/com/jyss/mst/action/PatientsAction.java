@@ -122,7 +122,7 @@ public class PatientsAction {
 	}
 
 	/******************* 单位统计 *********************/
-	@RequestMapping({"/patAddrTjBy"})
+	@RequestMapping("/patAddrTjBy")
 	  @ResponseBody
 	  public Page<TjEntity> patAddrTjBy(@RequestParam("province") String province, @RequestParam("city") String city, @RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
 	  {
@@ -141,7 +141,7 @@ public class PatientsAction {
 	    return p;
 	  }
 	  
-	  @RequestMapping({"/patAddrTjCx"})
+	  @RequestMapping("/patAddrTjCx")
 	  @ResponseBody
 	  public Page<TjEntity> patAddrTjCx(@RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
 	  {
@@ -160,7 +160,7 @@ public class PatientsAction {
 	    return p;
 	  }
 	  
-	  @RequestMapping({"/patOnTjBy"})
+	  @RequestMapping("/patOnTjBy")
 	  @ResponseBody
 	  public Page<TjEntity> patOnTjBy(@RequestParam("province") String province, @RequestParam("city") String city, @RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
 	  {
@@ -192,7 +192,7 @@ public class PatientsAction {
 	    return cl.getBz_value();
 	  }
 	  
-	  @RequestMapping({"/patOnTjCx"})
+	  @RequestMapping("/patOnTjCx")
 	  @ResponseBody
 	  public Page<TjEntity> patOnTjCx(@RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
 	  {
@@ -212,7 +212,7 @@ public class PatientsAction {
 	    return p;
 	  }
 	  
-	  @RequestMapping({"/patDwTjBy"})
+	  @RequestMapping("/patDwTjBy")
 	  @ResponseBody
 	  public Page<TjEntity> patDwTjBy(@RequestParam("dw") String dw, @RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
 	  {
@@ -231,7 +231,7 @@ public class PatientsAction {
 	    return p;
 	  }
 	  
-	  @RequestMapping({"/patDwTjCx"})
+	  @RequestMapping("/patDwTjCx")
 	  @ResponseBody
 	  public Page<TjEntity> patDwTjCz(@RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
 	  {

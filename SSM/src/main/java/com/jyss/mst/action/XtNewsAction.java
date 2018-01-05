@@ -30,28 +30,28 @@ public class XtNewsAction
   @Autowired
   private HttpServletRequest request;
   
-  @RequestMapping({"/xtnews"})
+  @RequestMapping("/xtnews")
   public String xtnewsTz()
   {
     return "xtnews";
   }
   
-  @RequestMapping({"/appxtnews"})
+  @RequestMapping("/appxtnews")
   public String appxtnewsTz() {
     return "appxtnews";
   }
   
-  @RequestMapping({"/xtgx"})
+  @RequestMapping("/xtgx")
   public String xtgxTz() {
     return "xtgx";
   }
   
-  @RequestMapping({"/kaijixtnews"})
+  @RequestMapping("/kaijixtnews")
   public String kaijixtnewsTz() {
     return "kaijixtnews";
   }
   
-  @RequestMapping({"/getKaijiXtNews"})
+  @RequestMapping("/getKaijiXtNews")
   @ResponseBody
   public Page<Xtnews> getKaijiXtNews(@RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
   {
@@ -61,7 +61,7 @@ public class XtNewsAction
     return new Page(pageInfoNews);
   }
   
-  @RequestMapping({"/getKaijiXtNewsBy"})
+  @RequestMapping("/getKaijiXtNewsBy")
   @ResponseBody
   public Page<Xtnews> getKaijiXtNewsBy(@RequestParam("title1") String title1, @RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
   {
@@ -71,7 +71,7 @@ public class XtNewsAction
     return new Page(pageInfoNewsBy);
   }
   
-  @RequestMapping({"/addKaijiXtNews"})
+  @RequestMapping("/addKaijiXtNews")
   @ResponseBody
   public ResponseEntity addKaijiXtNews(Xtnews xtnews, @RequestParam("myFile") MultipartFile myFile)
   {
@@ -108,7 +108,7 @@ public class XtNewsAction
     return new ResponseEntity("NO", "操作失败！");
   }
   
-  @RequestMapping({"/getXtNewsApp"})
+  @RequestMapping("/getXtNewsApp")
   @ResponseBody
   public Page<Xtnews> getXtNewsApp(@RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
   {
@@ -118,7 +118,7 @@ public class XtNewsAction
     return new Page(pageInfoNews);
   }
   
-  @RequestMapping({"/getAPPXtNewsBy"})
+  @RequestMapping("/getAPPXtNewsBy")
   @ResponseBody
   public Page<Xtnews> getAPPXtNewsBy(@RequestParam("title1") String title1, @RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
   {
@@ -129,7 +129,7 @@ public class XtNewsAction
     return new Page(pageInfoNewsBy);
   }
   
-  @RequestMapping({"/addAPPXtNews"})
+  @RequestMapping("/addAPPXtNews")
   @ResponseBody
   public ResponseEntity addAPPXtNews(com.jyss.mst.entity.Xtnews xtnews)
   {
@@ -151,7 +151,7 @@ public class XtNewsAction
     return new ResponseEntity("NO", "操作失败！");
   }
   
-  @RequestMapping({"/getXtNews"})
+  @RequestMapping("/getXtNews")
   @ResponseBody
   public Page<com.jyss.mst.entity.Xtnews> getXtNews(@RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
   {
@@ -161,7 +161,7 @@ public class XtNewsAction
     return new Page(pageInfoNews);
   }
   
-  @RequestMapping({"/getXtNewsBy"})
+  @RequestMapping("/getXtNewsBy")
   @ResponseBody
   public Page<com.jyss.mst.entity.Xtnews> getXtNewsBy(@RequestParam("title1") String title1, @RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
   {
@@ -172,7 +172,7 @@ public class XtNewsAction
     return new Page(pageInfoNewsBy);
   }
   
-  @RequestMapping({"/addXtNews"})
+  @RequestMapping("/addXtNews")
   @ResponseBody
   public ResponseEntity addXtNews(com.jyss.mst.entity.Xtnews xtnews)
   {
@@ -194,7 +194,7 @@ public class XtNewsAction
     return new ResponseEntity("NO", "操作失败！");
   }
   
-  @RequestMapping({"/delXtNews"})
+  @RequestMapping("/delXtNews")
   @ResponseBody
   public ResponseEntity deleteXtNews(String strIds)
   {
@@ -207,7 +207,7 @@ public class XtNewsAction
     return new ResponseEntity("false", "操作失败！");
   }
   
-  @RequestMapping({"/getXtgx"})
+  @RequestMapping("/getXtgx")
   @ResponseBody
   public Page<Xtgx> getXtgx(@RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
   {
@@ -217,7 +217,7 @@ public class XtNewsAction
     return new Page(pageInfoNews);
   }
   
-  @RequestMapping({"/getXtgxBy"})
+  @RequestMapping("/getXtgxBy")
   @ResponseBody
   public Page<Xtgx> getXtgxBy(@RequestParam("titles1") String titles1, @RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
   {
@@ -227,7 +227,7 @@ public class XtNewsAction
     return new Page(pageInfoNewsBy);
   }
   
-  @RequestMapping({"/addXtgx"})
+  @RequestMapping("/addXtgx")
   @ResponseBody
   public ResponseEntity addXtgx(Xtgx xtgx, @RequestParam("myFile") MultipartFile myFile)
   {
@@ -262,7 +262,7 @@ public class XtNewsAction
     return new ResponseEntity("NO", "操作失败！");
   }
   
-  @RequestMapping({"/delXtgx"})
+  @RequestMapping("/delXtgx")
   @ResponseBody
   public ResponseEntity deleteXtgx(String strIds)
   {
@@ -275,7 +275,7 @@ public class XtNewsAction
     return new ResponseEntity("false", "操作失败！");
   }
   
-  @RequestMapping({"/pat/getPatXtNews"})
+  @RequestMapping("/pat/getPatXtNews")
   @ResponseBody
   public com.jyss.mst.entity.Xtnews getPatXtNews()
   {
@@ -283,7 +283,7 @@ public class XtNewsAction
     return xtnewspat;
   }
   
-  @RequestMapping({"/pat/getPatXtgx"})
+  @RequestMapping("/pat/getPatXtgx")
   @ResponseBody
   public Xtgx getPatXtgx()
   {

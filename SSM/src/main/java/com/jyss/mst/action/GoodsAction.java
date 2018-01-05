@@ -28,18 +28,18 @@ public class GoodsAction
   @Autowired
   private HttpServletRequest request;
   
-  @RequestMapping({"/goods"})
+  @RequestMapping("/goods")
   public String goodsTz()
   {
     return "goods";
   }
   
-  @RequestMapping({"/goodsCategory"})
+  @RequestMapping("/goodsCategory")
   public String goodsCategoryTz() {
     return "goodsCategory";
   }
   
-  @RequestMapping({"/getGoods"})
+  @RequestMapping("/getGoods")
   @ResponseBody
   public Page<Goods> getGoods(@RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
   {
@@ -52,7 +52,7 @@ public class GoodsAction
     return new Page(pageInfoNews);
   }
   
-  @RequestMapping({"/getGoodsBy"})
+  @RequestMapping("/getGoodsBy")
   @ResponseBody
   public Page<Goods> getGoodsBy(@RequestParam("name") String name, @RequestParam("categoryId") String categoryId, @RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
   {
@@ -65,7 +65,7 @@ public class GoodsAction
     return new Page(pageInfoNews);
   }
   
-  @RequestMapping({"/getGoodCategory"})
+  @RequestMapping("/getGoodCategory")
   @ResponseBody
   public Page<GoodCategory> getGoodCategory(@RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
   {
@@ -75,7 +75,7 @@ public class GoodsAction
     return new Page(pageInfoNews);
   }
   
-  @RequestMapping({"/getGoodCategoryCol"})
+  @RequestMapping("/getGoodCategoryCol")
   @ResponseBody
   public List<GoodCategory> getGoodCategoryCol()
   {
@@ -83,7 +83,7 @@ public class GoodsAction
     return gcList;
   }
   
-  @RequestMapping({"/getGoodCategoryBy"})
+  @RequestMapping("/getGoodCategoryBy")
   @ResponseBody
   public Page<GoodCategory> getGoodCategoryBy(@RequestParam("name") String name, @RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
   {
@@ -93,7 +93,7 @@ public class GoodsAction
     return new Page(pageInfoNews);
   }
   
-  @RequestMapping({"/addGoods"})
+  @RequestMapping("/addGoods")
   @ResponseBody
   public ResponseEntity addGoods(Goods goods, @RequestParam("pics2") MultipartFile pics2)
   {
@@ -127,7 +127,7 @@ public class GoodsAction
     return new ResponseEntity("NO", "操作失败！");
   }
   
-  @RequestMapping({"/addGoodCategory"})
+  @RequestMapping("/addGoodCategory")
   @ResponseBody
   public ResponseEntity addGoodCategory(GoodCategory gc)
   {
@@ -146,7 +146,7 @@ public class GoodsAction
     return new ResponseEntity("NO", "操作失败！");
   }
   
-  @RequestMapping({"/delGoods"})
+  @RequestMapping("/delGoods")
   @ResponseBody
   public ResponseEntity delGoods(String strIds)
   {
@@ -159,7 +159,7 @@ public class GoodsAction
     return new ResponseEntity("false", "操作失败！");
   }
   
-  @RequestMapping({"/delGoodCategory"})
+  @RequestMapping("/delGoodCategory")
   @ResponseBody
   public ResponseEntity delGoodCategory(String strIds)
   {

@@ -36,7 +36,7 @@ public class XlxmAction
   
   
   
-  @RequestMapping({"/doc/getTitles"})
+  @RequestMapping("/doc/getTitles")
   @ResponseBody
   public List<Xlxm> getTitles(@RequestParam("type") String type)
   {
@@ -44,7 +44,7 @@ public class XlxmAction
     return xmList;
   }
   
-  @RequestMapping({"/pat/getAllTitles"})
+  @RequestMapping("/pat/getAllTitles")
   @ResponseBody
   public Map<String, Object> getAllTitles()
   {
@@ -65,28 +65,28 @@ public class XlxmAction
     return m;
   }
   
-  @RequestMapping({"/xm"})
+  @RequestMapping("/xm")
   public String newsTz()
   {
     return "xlxm";
   }
   
-  @RequestMapping({"/xmPc"})
+  @RequestMapping("/xmPc")
   public String xmPcTz() {
     return "xmPc";
   }
   
-  @RequestMapping({"/xmTest"})
+  @RequestMapping("/xmTest")
   public String xmTestTz() {
     return "xmTest";
   }
   
-  @RequestMapping({"/yxzx"})
+  @RequestMapping("/yxzx")
   public String yxzxTz() {
     return "yxzx";
   }
   
-  @RequestMapping({"/getXm"})
+  @RequestMapping("/getXm")
   @ResponseBody
   public Page<Xlxm> getNews(@RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
   {
@@ -96,7 +96,7 @@ public class XlxmAction
     return new Page(pageInfoXm);
   }
   
-  @RequestMapping({"/getXmBy"})
+  @RequestMapping("/getXmBy")
   @ResponseBody
   public Page<Xlxm> getNewsBy(@RequestParam("titles1") String titles1, @RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
   {
@@ -106,7 +106,7 @@ public class XlxmAction
     return new Page(pageInfoXmBy);
   }
   
-  @RequestMapping({"/addXm"})
+  @RequestMapping("/addXm")
   @ResponseBody
   public ResponseEntity addXm(Xlxm xm)
   {
@@ -126,7 +126,7 @@ public class XlxmAction
     return new ResponseEntity("NO", "操作失败！");
   }
   
-  @RequestMapping({"/delXm"})
+  @RequestMapping("/delXm")
   @ResponseBody
   public ResponseEntity deleteNews(String strIds)
   {
@@ -139,7 +139,7 @@ public class XlxmAction
     return new ResponseEntity("false", "操作失败！");
   }
   
-  @RequestMapping({"/getXmPc"})
+  @RequestMapping("/getXmPc")
   @ResponseBody
   public Page<PcTest> getXmPc(@RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
   {
@@ -149,7 +149,7 @@ public class XlxmAction
     return new Page(pageInfoXm);
   }
   
-  @RequestMapping({"/getXmPcBy"})
+  @RequestMapping("/getXmPcBy")
   @ResponseBody
   public Page<PcTest> getXmPcBy(@RequestParam("titles1") String titles1, @RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
   {
@@ -159,7 +159,7 @@ public class XlxmAction
     return new Page(pageInfoXmBy);
   }
   
-  @RequestMapping({"/addXmPc"})
+  @RequestMapping("/addXmPc")
   @ResponseBody
   public ResponseEntity addXmPc(PcTest pt)
   {
@@ -179,7 +179,7 @@ public class XlxmAction
     return new ResponseEntity("NO", "操作失败！");
   }
   
-  @RequestMapping({"/getYxzx"})
+  @RequestMapping("/getYxzx")
   @ResponseBody
   public Page<PcTest> getYxzx(@RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
   {
@@ -189,7 +189,7 @@ public class XlxmAction
     return new Page(pageInfoXm);
   }
   
-  @RequestMapping({"/getYxzxBy"})
+  @RequestMapping("/getYxzxBy")
   @ResponseBody
   public Page<PcTest> getYxzxBy(@RequestParam("titles1") String titles1, @RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
   {
@@ -199,7 +199,7 @@ public class XlxmAction
     return new Page(pageInfoXmBy);
   }
   
-  @RequestMapping({"/addYxzx"})
+  @RequestMapping("/addYxzx")
   @ResponseBody
   public ResponseEntity addYxzx(PcTest pt)
   {
@@ -219,7 +219,7 @@ public class XlxmAction
     return new ResponseEntity("NO", "操作失败！");
   }
   
-  @RequestMapping({"/delXmPc"})
+  @RequestMapping("/delXmPc")
   @ResponseBody
   public ResponseEntity delXmPc(String strIds)
   {
@@ -232,7 +232,7 @@ public class XlxmAction
     return new ResponseEntity("false", "操作失败！");
   }
   
-  @RequestMapping({"/getTest"})
+  @RequestMapping("/getTest")
   @ResponseBody
   public Page<PcTest> getTest(@RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
   {
@@ -242,7 +242,7 @@ public class XlxmAction
     return new Page(pageInfoXm);
   }
   
-  @RequestMapping({"/getTestBy"})
+  @RequestMapping("/getTestBy")
   @ResponseBody
   public Page<PcTest> getTestBy(@RequestParam("titles1") String titles1, @RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
   {
@@ -252,7 +252,7 @@ public class XlxmAction
     return new Page(pageInfoXmBy);
   }
   
-  @RequestMapping({"/addTest"})
+  @RequestMapping("/addTest")
   @ResponseBody
   public ResponseEntity addTest(PcTest pt)
   {
@@ -273,7 +273,7 @@ public class XlxmAction
     return new ResponseEntity("NO", "操作失败！");
   }
   
-  @RequestMapping({"/delXmTest"})
+  @RequestMapping("/delXmTest")
   @ResponseBody
   public ResponseEntity delXmTest(String strIds)
   {
@@ -293,7 +293,7 @@ public class XlxmAction
     count = this.xmService.addXm(xm);
   }
   
-  @RequestMapping({"/TestTest"})
+  @RequestMapping("/TestTest")
   @ResponseBody
   public ResponseEntity addTest()
   {

@@ -9,10 +9,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping({"/code"})
+@RequestMapping("/code")
 public class CodeImgAction
 {
-  @RequestMapping({"/shiro-getCode"})
+  @RequestMapping("/shiro-getCode")
   public void getCode(HttpServletResponse response, HttpSession session)
   {
     ValidateCode vCode = new ValidateCode(100, 30, 4, 50);

@@ -940,7 +940,7 @@ public class DoctorsAction {
 	}
 
 	// //*************后台统计************************////
-	@RequestMapping({"/docAddrTjBy"})
+	@RequestMapping("/docAddrTjBy")
 	  @ResponseBody
 	  public Page<TjEntity> docAddrTjBy(@RequestParam("province") String province, @RequestParam("city") String city, @RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
 	  {
@@ -959,7 +959,7 @@ public class DoctorsAction {
 	    return p;
 	  }
 	  
-	  @RequestMapping({"/docAddrTjCx"})
+	  @RequestMapping("/docAddrTjCx")
 	  @ResponseBody
 	  public Page<TjEntity> docAddrTjCx(@RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
 	  {
@@ -979,7 +979,7 @@ public class DoctorsAction {
 	    return p;
 	  }
 	  
-	  @RequestMapping({"/docOnTjBy"})
+	  @RequestMapping("/docOnTjBy")
 	  @ResponseBody
 	  public Page<TjEntity> docOnTjBy(@RequestParam("province") String province, @RequestParam("city") String city, @RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
 	  {
@@ -1011,7 +1011,7 @@ public class DoctorsAction {
 	    return cl.getBz_value();
 	  }
 	  
-	  @RequestMapping({"/docOnTjCx"})
+	  @RequestMapping("/docOnTjCx")
 	  @ResponseBody
 	  public Page<TjEntity> docOnTjCx(@RequestParam(value="page", required=true) int page, @RequestParam(value="rows", required=true) int rows)
 	  {
