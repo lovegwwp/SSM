@@ -171,7 +171,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>图片：</td>
+                        <td>媒体文件：</td>
                         <td>
                         	<input id="pics2" name="pics2" class="easyui-filebox"  style="width:200px;"/>&nbsp;<span
                             style="color: red">*</span>

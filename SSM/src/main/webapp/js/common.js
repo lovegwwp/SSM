@@ -223,7 +223,7 @@ function setFmValue(){
  function checkFileExt(filename)
   {
      var flag = false; //状态
-     var arr = ["jpg","png","gif","ico"];
+     var arr = ["jpg","png","gif","ico","mp4","wmv","Ogg","MPGE4","mp3","MP3"];
      //取出上传文件的扩展名
      var index = filename.lastIndexOf(".");
      var ext = filename.substr(index+1);
