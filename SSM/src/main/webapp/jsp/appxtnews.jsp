@@ -103,8 +103,6 @@
 					<!-- <th field="id" width="50">id</th> -->
 					<!-- <th field="type" width="80" formatter="formatNewsType">发送类型</th> -->
 					<th field="title" width="150">标题</th>
-					<!-- <th field="pic" width="200">图片路径</th>
-					<th field="byteSize" width="100">图片大小</th> -->
 					<th field="contents" width="650">消息内容</th>
 					<!-- <th field="ps1" width="200">说明1</th>
 					<th field="ps2" width="200">说明2</th> -->
