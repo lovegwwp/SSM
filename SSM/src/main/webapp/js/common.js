@@ -296,6 +296,8 @@ function setFmValue(){
  		 
 	 }
 	 
+	
+	 
 	 function formatJy(value,row,index){
  		if(value==null){  
              return "";  
